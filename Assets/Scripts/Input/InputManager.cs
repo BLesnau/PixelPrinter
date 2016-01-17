@@ -9,28 +9,16 @@ public enum TouchValueEvent { OneFingerXAxis, OneFingerYAxis, PinchStretch }
 
 public class ToggleEvent
 {
-   public MouseToggleEvent MouseEvent;
-   public TouchToggleEvent TouchEvent;
-}
+   public MouseToggleEvent MouseEvent { get; private set; }
+   public TouchToggleEvent TouchEvent { get; private set; }
 
-public class ValueEvent
-{
-   public float MouseMultiplier = 1;
-   public float TouchMultiplier = 1;
-   public MouseValueEvent MouseEvent;
-   public TouchValueEvent TouchEvent;
-}
-
-public class InputManager : MonoBehaviour
-{
-   public enum MouseButton { Left = 0, Right = 1, Middle = 2 }
-
-   static InputManager()
+   public ToggleEvent( MouseToggleEvent mouseEvent, TouchToggleEvent touchEvent )
    {
-      Input.simulateMouseWithTouches = false;
+      MouseEvent = mouseEvent;
+      TouchEvent = touchEvent;
    }
 
-   public static bool IsActive( ToggleEvent toggleEvent )
+   public bool IsActive()
    {
       DebugHelper.Log( "Multi-touch Enabled", Input.multiTouchEnabled.ToString() );
       DebugHelper.Log( "Simulate Mouse With Touch", Input.simulateMouseWithTouches.ToString() );
@@ -42,14 +30,9 @@ public class InputManager : MonoBehaviour
          DebugHelper.Log( string.Format( "Touch {0} Tap Count", i ), Input.touches[i].tapCount.ToString() );
       }
 
-      if ( toggleEvent == null )
+      if ( InputManager.UseTouchControls() )
       {
-         return false;
-      }
-
-      if ( UseTouchControls() )
-      {
-         switch ( toggleEvent.TouchEvent )
+         switch ( TouchEvent )
          {
             case TouchToggleEvent.OneFingerTap:
             {
@@ -89,11 +72,11 @@ public class InputManager : MonoBehaviour
       }
       else
       {
-         switch ( toggleEvent.MouseEvent )
+         switch ( MouseEvent )
          {
             case MouseToggleEvent.LeftClick:
             {
-               if ( IsMouseButtonPressed( MouseButton.Left ) )
+               if ( InputManager.IsMouseButtonPressed( InputManager.MouseButton.Left ) )
                {
                   return true;
                }
@@ -101,7 +84,7 @@ public class InputManager : MonoBehaviour
             }
             case MouseToggleEvent.RightClick:
             {
-               if ( IsMouseButtonPressed( MouseButton.Right ) )
+               if ( InputManager.IsMouseButtonPressed( InputManager.MouseButton.Right ) )
                {
                   return true;
                }
@@ -112,18 +95,34 @@ public class InputManager : MonoBehaviour
 
       return false;
    }
+}
 
-   public static float GetValue( ValueEvent valueEvent )
+public class ValueEvent
+{
+   public MouseValueEvent MouseEvent { get; private set; }
+   public TouchValueEvent TouchEvent { get; private set; }
+   public float MouseMultiplier { get; private set; }
+   public float TouchMultiplier { get; private set; }
+
+   public ValueEvent( MouseValueEvent mouseEvent, TouchValueEvent touchEvent, float mouseMult = 1, float touchMult = 1 )
    {
-      if ( UseTouchControls() )
+      MouseEvent = mouseEvent;
+      TouchEvent = touchEvent;
+      MouseMultiplier = mouseMult;
+      TouchMultiplier = touchMult;
+   }
+
+   public float GetValue()
+   {
+      if ( InputManager.UseTouchControls() )
       {
-         switch ( valueEvent.TouchEvent )
+         switch ( TouchEvent )
          {
             case TouchValueEvent.OneFingerXAxis:
             {
                if ( Input.touchCount == 1 && Input.touches.All( x => x.phase == TouchPhase.Moved ) )
                {
-                  return Input.touches[0].deltaPosition.x * valueEvent.TouchMultiplier;
+                  return Input.touches[0].deltaPosition.x * TouchMultiplier;
                }
                break;
             }
@@ -131,7 +130,7 @@ public class InputManager : MonoBehaviour
             {
                if ( Input.touchCount == 1 && Input.touches.All( x => x.phase == TouchPhase.Moved ) )
                {
-                  return Input.touches[0].deltaPosition.y * valueEvent.TouchMultiplier;
+                  return Input.touches[0].deltaPosition.y * TouchMultiplier;
                }
                break;
             }
@@ -143,7 +142,7 @@ public class InputManager : MonoBehaviour
                   var t2 = Input.touches[1];
                   var prevDistance = (float)Math.Sqrt( Math.Pow( ( t1.position.x - t1.deltaPosition.x ) - ( t2.position.x - t2.deltaPosition.x ), 2 ) + Math.Pow( ( t1.position.y - t1.deltaPosition.y ) - ( t2.position.y - t2.deltaPosition.y ), 2 ) );
                   var currDistance = (float)Math.Sqrt( Math.Pow( t1.position.x - t2.position.x, 2 ) + Math.Pow( t1.position.y - t2.position.y, 2 ) );
-                  return ( currDistance - prevDistance ) * valueEvent.TouchMultiplier;
+                  return ( currDistance - prevDistance ) * TouchMultiplier;
                }
                break;
             }
@@ -151,24 +150,34 @@ public class InputManager : MonoBehaviour
       }
       else
       {
-         switch ( valueEvent.MouseEvent )
+         switch ( MouseEvent )
          {
             case MouseValueEvent.XAxis:
             {
-               return Input.GetAxis( "Mouse X" ) * valueEvent.MouseMultiplier;
+               return Input.GetAxis( "Mouse X" ) * MouseMultiplier;
             }
             case MouseValueEvent.YAxis:
             {
-               return Input.GetAxis( "Mouse Y" ) * valueEvent.MouseMultiplier;
+               return Input.GetAxis( "Mouse Y" ) * MouseMultiplier;
             }
             case MouseValueEvent.Scroll:
             {
-               return Input.GetAxis( "Mouse ScrollWheel" ) * valueEvent.MouseMultiplier;
+               return Input.GetAxis( "Mouse ScrollWheel" ) * MouseMultiplier;
             }
          }
       }
 
       return 0;
+   }
+}
+
+public class InputManager : MonoBehaviour
+{
+   public enum MouseButton { Left = 0, Right = 1, Middle = 2 }
+
+   static InputManager()
+   {
+      Input.simulateMouseWithTouches = false;
    }
 
    public static bool IsMouseButtonPressed( MouseButton mouseButton )
@@ -176,7 +185,7 @@ public class InputManager : MonoBehaviour
       return Input.GetMouseButton( Convert.ToInt16( mouseButton ) );
    }
 
-   private static bool UseTouchControls()
+   public static bool UseTouchControls()
    {
       return Input.touchCount != 0;
    }
