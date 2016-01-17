@@ -4,33 +4,21 @@ public class CameraMovement : MonoBehaviour
 {
    public GameObject Target;
 
-   private ToggleEvent StartRotateXY = new ToggleEvent() {MouseEvent = MouseToggleEvent.LeftClick, TouchEvent = TouchToggleEvent.OneFingerDown};
-   private ValueEvent DragX = new ValueEvent() {MouseEvent = MouseValueEvent.XAxis, TouchEvent = TouchValueEvent.OneFingerXAxis, MouseMultiplier = 5, TouchMultiplier = .5f};
-   private ValueEvent DragY = new ValueEvent() {MouseEvent = MouseValueEvent.YAxis, TouchEvent = TouchValueEvent.OneFingerYAxis, MouseMultiplier = 5, TouchMultiplier = .5f};
-   private ValueEvent Zoom = new ValueEvent() {MouseEvent = MouseValueEvent.Scroll, TouchEvent = TouchValueEvent.PinchStretch, MouseMultiplier = 5, TouchMultiplier = .02f};
+   private readonly ToggleEvent _startRotateXy = new ToggleEvent( MouseToggleEvent.LeftClick, TouchToggleEvent.OneFingerDown );
+   private readonly ValueEvent _dragX = new ValueEvent( MouseValueEvent.XAxis, TouchValueEvent.OneFingerXAxis, 5, .5f );
+   private readonly ValueEvent _dragY = new ValueEvent( MouseValueEvent.YAxis,  TouchValueEvent.OneFingerYAxis, 5, .5f );
+   private readonly ValueEvent _zoom = new ValueEvent( MouseValueEvent.Scroll, TouchValueEvent.PinchStretch, 5, .02f );
 
    void Start()
    {
    }
 
-   // Update is called once per frame
    private void Update()
    {
-      //if ( InputManager.IsMouseButtonPressed( InputManager.MouseButton.Left ) )
-      //{
-      //   var rotX = Input.GetAxis( "Mouse X" ) * Sensitivity;
-      //   var rotY = Input.GetAxis( "Mouse Y" ) * Sensitivity;
-
-      //   var targetRot = Quaternion.AngleAxis( -rotX, this.transform.up );
-      //   targetRot *= Quaternion.AngleAxis( rotY, this.transform.right );
-
-      //   Target.transform.localRotation = targetRot * Target.transform.localRotation;
-      //}
-
-      if ( InputManager.IsActive( StartRotateXY ) )
+      if ( _startRotateXy.IsActive() )
       {
-         var rotX = InputManager.GetValue( DragX );
-         var rotY = InputManager.GetValue( DragY );
+         var rotX = _dragX.GetValue();
+         var rotY = _dragY.GetValue();
 
          var targetRot = Quaternion.AngleAxis( -rotX, this.transform.up );
          targetRot *= Quaternion.AngleAxis( rotY, this.transform.right );
@@ -38,25 +26,7 @@ public class CameraMovement : MonoBehaviour
          Target.transform.localRotation = targetRot * Target.transform.localRotation;
       }
 
-      var zoom = InputManager.GetValue( Zoom );
+      var zoom = _zoom.GetValue();
       Target.transform.Translate( 0, 0, -zoom, Space.World );
-   }
-
-   public static float ClampAngle( float angle, float min, float max )
-   {
-      angle = angle % 360;
-      if ( ( angle >= -360F ) && ( angle <= 360F ) )
-      {
-         if ( angle < -360F )
-         {
-            angle += 360F;
-         }
-         if ( angle > 360F )
-         {
-            angle -= 360F;
-         }
-      }
-
-      return Mathf.Clamp( angle, min, max );
    }
 }
