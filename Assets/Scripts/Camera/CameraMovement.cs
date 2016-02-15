@@ -16,10 +16,12 @@ public class CameraMovement : MonoBehaviour
    public bool LimitRotation = false;
    public RotationClamps ClampRoation = new RotationClamps() {ClampRoation = false, UpperClamp = 0, LowerClamp = 0};
 
-   private readonly ToggleEvent _startRotateXy = new ToggleEvent( MouseToggleEvent.LeftClick, TouchToggleEvent.OneFingerDown );
+   private readonly ToggleEvent _startRotateXY = new ToggleEvent( MouseToggleEvent.LeftClick, TouchToggleEvent.OneFingerDown );
    private readonly ValueEvent _dragX = new ValueEvent( MouseValueEvent.XAxis, TouchValueEvent.OneFingerXAxis, 5, .5f );
    private readonly ValueEvent _dragY = new ValueEvent( MouseValueEvent.YAxis,  TouchValueEvent.OneFingerYAxis, 5, .5f );
    private readonly ValueEvent _zoom = new ValueEvent( MouseValueEvent.Scroll, TouchValueEvent.PinchStretch, 5, .02f );
+
+   private float _totalYRot = 0;
 
    void Start()
    {
@@ -27,7 +29,7 @@ public class CameraMovement : MonoBehaviour
 
    private void Update()
    {
-      if ( _startRotateXy.IsActive() )
+      if ( _startRotateXY.IsActive() )
       {
          var rotX = _dragX.GetValue();
          var rotY = _dragY.GetValue();
@@ -44,6 +46,21 @@ public class CameraMovement : MonoBehaviour
             }
          }
 
+         var tmpTotalRot = _totalYRot + rotY;
+         if ( ClampRoation.ClampRoation )
+         {
+            if ( tmpTotalRot > ClampRoation.UpperClamp )
+            {
+               rotY = ClampRoation.UpperClamp - _totalYRot;
+            }
+
+            if ( tmpTotalRot < ClampRoation.LowerClamp )
+            {
+               rotY = ClampRoation.LowerClamp - _totalYRot;
+            }
+         }
+         _totalYRot += rotY;
+
          Quaternion targetRot;
          if ( LimitRotation )
          {
@@ -55,24 +72,7 @@ public class CameraMovement : MonoBehaviour
             targetRot = Quaternion.AngleAxis( -rotX, this.transform.up );
             targetRot *= Quaternion.AngleAxis( rotY, this.transform.right );
          }
-         targetRot = targetRot * Target.transform.localRotation;
-         if ( ClampRoation.ClampRoation )
-         {
-            var euler = targetRot.eulerAngles;
-            if ( !( ( euler.x < ClampRoation.UpperClamp ) || ( euler.x > 360 - ClampRoation.LowerClamp ) ) )
-            {
-               if ( Mathf.Abs( euler.x - ClampRoation.UpperClamp ) <= Mathf.Abs( euler.x - ClampRoation.LowerClamp ) )
-               {
-                  euler.x = ClampRoation.UpperClamp;
-               }
-               else
-               {
-                  euler.x = ClampRoation.LowerClamp;
-               }
-               targetRot = Quaternion.Euler( euler );
-            }
-         }
-         Target.transform.localRotation = targetRot;
+         Target.transform.localRotation = targetRot * Target.transform.localRotation;
       }
 
       var zoom = _zoom.GetValue();
