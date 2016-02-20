@@ -50,8 +50,6 @@ public class GridOverlay : MonoBehaviour
       var startX = -1 * ( ( ( colCount * pixelScale ) / 2.0f ) );
       var startY = -1 * ( ( ( rowCount * pixelScale ) / 2.0f ) );
 
-      //Debug.Log( startX );
-
       //Layers
       for ( float j = 0; j <= rowCount; j++ )
       {

@@ -41,8 +41,6 @@ public class SmoothMouseLook : MonoBehaviour
          rotationY += Input.GetAxis( "Mouse Y" ) * sensitivityY;
          rotationX += Input.GetAxis( "Mouse X" ) * sensitivityX;
 
-         Debug.Log( rotationY );
-
          rotArrayY.Add( rotationY );
          rotArrayX.Add( rotationX );
 
@@ -69,8 +67,6 @@ public class SmoothMouseLook : MonoBehaviour
 
          rotAverageY = ClampAngle( rotAverageY, minimumY, maximumY );
          rotAverageX = ClampAngle( rotAverageX, minimumX, maximumX );
-
-         //Debug.Log( rotAverageY );
 
          Quaternion yQuaternion = Quaternion.AngleAxis( rotAverageY, Vector3.left );
          Quaternion xQuaternion = Quaternion.AngleAxis( rotAverageX, Vector3.up );

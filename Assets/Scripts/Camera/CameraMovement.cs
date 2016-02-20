@@ -16,7 +16,7 @@ public class CameraMovement : MonoBehaviour
    public bool LimitRotation = false;
    public RotationClamps ClampRoation = new RotationClamps() {ClampRoation = false, UpperClamp = 0, LowerClamp = 0};
 
-   private readonly ToggleEvent _startRotateXY = new ToggleEvent( MouseToggleEvent.LeftClick, TouchToggleEvent.OneFingerDown );
+   private readonly ToggleEvent _startRotateXY = new ToggleEvent( MouseToggleEvent.LeftDown, TouchToggleEvent.OneFingerDown );
    private readonly ValueEvent _dragX = new ValueEvent( MouseValueEvent.XAxis, TouchValueEvent.OneFingerXAxis, 5, .5f );
    private readonly ValueEvent _dragY = new ValueEvent( MouseValueEvent.YAxis,  TouchValueEvent.OneFingerYAxis, 5, .5f );
    private readonly ValueEvent _zoom = new ValueEvent( MouseValueEvent.Scroll, TouchValueEvent.PinchStretch, 5, .02f );

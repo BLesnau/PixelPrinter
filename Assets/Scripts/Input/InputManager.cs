@@ -2,15 +2,18 @@
 using System.Linq;
 using UnityEngine;
 
-public enum MouseToggleEvent { LeftClick, RightClick }
-public enum MouseValueEvent { XAxis, YAxis, Scroll }
+public enum MouseToggleEvent { LeftClick, RightClick, LeftDown, RightDown }
+public enum MouseValueEvent { XAxis, YAxis, XPos, YPos, Scroll }
 public enum TouchToggleEvent { OneFingerTap, TwoFingersTap, OneFingerDown, TwoFingersDown }
-public enum TouchValueEvent { OneFingerXAxis, OneFingerYAxis, PinchStretch }
+public enum TouchValueEvent { OneFingerXAxis, OneFingerYAxis, OneFingerXPos, OneFingerYPos, PinchStretch }
 
 public class ToggleEvent
 {
    public MouseToggleEvent MouseEvent { get; private set; }
    public TouchToggleEvent TouchEvent { get; private set; }
+
+   private float _actionDelay = .3f;
+   private float _actionStart = -1f;
 
    public ToggleEvent( MouseToggleEvent mouseEvent, TouchToggleEvent touchEvent )
    {
@@ -52,8 +55,7 @@ public class ToggleEvent
             }
             case TouchToggleEvent.OneFingerDown:
             {
-               if ( Input.touchCount == 1 &&
-                    Input.touches.All( x => x.phase != TouchPhase.Ended && x.phase != TouchPhase.Canceled ) )
+               if ( Input.touchCount == 1 && Input.touches.All( x => x.phase != TouchPhase.Ended && x.phase != TouchPhase.Canceled ) )
                {
                   return true;
                }
@@ -61,8 +63,7 @@ public class ToggleEvent
             }
             case TouchToggleEvent.TwoFingersDown:
             {
-               if ( Input.touchCount == 2 &&
-                    Input.touches.All( x => x.phase != TouchPhase.Ended && x.phase != TouchPhase.Canceled ) )
+               if ( Input.touchCount == 2 && Input.touches.All( x => x.phase != TouchPhase.Ended && x.phase != TouchPhase.Canceled ) )
                {
                   return true;
                }
@@ -78,11 +79,57 @@ public class ToggleEvent
             {
                if ( InputManager.IsMouseButtonPressed( InputManager.MouseButton.Left ) )
                {
-                  return true;
+                  if ( _actionStart < 0 )
+                  {
+                     _actionStart = Time.unscaledTime;
+                  }
+               }
+               else
+               {
+                  if ( _actionStart >= 0 )
+                  {
+                     if ( ( Time.unscaledTime - _actionStart ) < _actionDelay )
+                     {
+                        _actionStart = -1f;
+                        return true;
+                     }
+                     _actionStart = -1f;
+                  }
                }
                break;
             }
             case MouseToggleEvent.RightClick:
+            {
+               if ( InputManager.IsMouseButtonPressed( InputManager.MouseButton.Right ) )
+               {
+                  if ( _actionStart < 0 )
+                  {
+                     _actionStart = Time.unscaledTime;
+                  }
+               }
+               else
+               {
+                  if ( _actionStart >= 0 )
+                  {
+                     if ( ( Time.unscaledTime - _actionStart ) < _actionDelay )
+                     {
+                        _actionStart = -1f;
+                        return true;
+                     }
+                     _actionStart = -1f;
+                  }
+               }
+               break;
+            }
+            case MouseToggleEvent.LeftDown:
+            {
+               if ( InputManager.IsMouseButtonPressed( InputManager.MouseButton.Left ) )
+               {
+                  return true;
+               }
+               break;
+            }
+            case MouseToggleEvent.RightDown:
             {
                if ( InputManager.IsMouseButtonPressed( InputManager.MouseButton.Right ) )
                {
@@ -134,6 +181,22 @@ public class ValueEvent
                }
                break;
             }
+            case TouchValueEvent.OneFingerXPos:
+            {
+               if ( Input.touchCount > 0 )
+               {
+                  return Input.touches[0].position.x * TouchMultiplier;
+               }
+               break;
+            }
+            case TouchValueEvent.OneFingerYPos:
+            {
+               if ( Input.touchCount > 0 )
+               {
+                  return Input.touches[0].position.y * TouchMultiplier;
+               }
+               break;
+            }
             case TouchValueEvent.PinchStretch:
             {
                if ( Input.touchCount == 2 && Input.touches.Any( x => x.phase == TouchPhase.Moved ) )
@@ -159,6 +222,14 @@ public class ValueEvent
             case MouseValueEvent.YAxis:
             {
                return Input.GetAxis( "Mouse Y" ) * MouseMultiplier;
+            }
+            case MouseValueEvent.XPos:
+            {
+               return Input.mousePosition.x;
+            }
+            case MouseValueEvent.YPos:
+            {
+               return Input.mousePosition.y;
             }
             case MouseValueEvent.Scroll:
             {

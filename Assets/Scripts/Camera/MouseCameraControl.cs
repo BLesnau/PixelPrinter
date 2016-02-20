@@ -63,7 +63,6 @@ public class MouseCameraControl : MonoBehaviour
       if ( yaw.isActivated() && pitch.isActivated() )
       {
          float rotationX = Input.GetAxis( mouseHorizontalAxisName ) * yaw.sensitivity;
-         Debug.Log( rotationX );
          float rotationY = Input.GetAxis( mouseVerticalAxisName ) * pitch.sensitivity;
          transform.Rotate( -rotationY, rotationX, 0 );
       }

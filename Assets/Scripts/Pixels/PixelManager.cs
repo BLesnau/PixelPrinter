@@ -6,37 +6,56 @@ using Random = UnityEngine.Random;
 
 public class PixelManager : MonoBehaviour
 {
-   private struct PixelConfig
+   private class PixelConfig
    {
       public int xIndex;
       public int yIndex;
       public int zIndex;
 
       public Vector3 position;
-      public Color color;
+
+      private Color _color;
+      public Color color
+      {
+         get { return _color; }
+         set
+         {
+            _color = value;
+            if ( prefab != null )
+            {
+               prefab.Color = value;
+            }
+         }
+      }
+
+      public Pixel prefab;
    }
 
    public Pixel pixelPrefab = null;
-   public int depthCount = 10;
-   public int colCount = 10;
-   public int rowCount = 10;
+   public int depthCount = 501;
+   public int colCount = 501;
+   public int rowCount = 501;
    public float pixelScale = 1;
    public float gridScale = .1f;
-   public float popInDelaySeconds = .1f;
-   public bool animatePopIn = true;
+   //public float popInDelaySeconds = .1f;
+   //public bool animatePopIn = true;
 
-   private Pixel[,,] _pixels = null;
-   private List<PixelConfig> _pixelsToPopIn = null;
-   private int _poppedInCount = 0;
-   private TimeSpan _popInTimeElapsed = TimeSpan.Zero;
-   private AudioSource _audio;
+   private PixelConfig[,,] _pixels = null;
+   private List<PixelConfig> placeablePixels = null;
+   //private int _poppedInCount = 0;
+   //private TimeSpan _popInTimeElapsed = TimeSpan.Zero;
+   //private AudioSource _audio;
+
+   private readonly ToggleEvent _placePixel = new ToggleEvent( MouseToggleEvent.LeftClick, TouchToggleEvent.OneFingerTap );
+   private readonly ValueEvent _pointerPosX = new ValueEvent( MouseValueEvent.XPos, TouchValueEvent.OneFingerXPos );
+   private readonly ValueEvent _pointerPosY = new ValueEvent( MouseValueEvent.YPos, TouchValueEvent.OneFingerYPos );
 
    private void Start()
    {
-      _audio = GetComponent<AudioSource>();
+      //_audio = GetComponent<AudioSource>();
 
-      _pixels = new Pixel[colCount, rowCount, depthCount];
-      _pixelsToPopIn = new List<PixelConfig>();
+      _pixels = new PixelConfig[colCount, rowCount, depthCount];
+      placeablePixels = new List<PixelConfig>();
 
       var startZ = -1 * ( ( ( depthCount * pixelScale ) / 2.0f ) - ( pixelScale / 2.0f ) );
       var startX = -1 * ( ( ( colCount * pixelScale ) / 2.0f ) - ( pixelScale / 2.0f ) );
@@ -106,57 +125,29 @@ public class PixelManager : MonoBehaviour
                x = xStartIndex + 1;
                z = zStartIndex + 1;
             }
+         }
+      }
 
-            if ( itemsLeft < 0 )
+      _pixels[colCount / 2, rowCount / 2, depthCount / 2].color = Color.red;
+
+      //if ( !animatePopIn )
+      //{
+      for ( var x = 0; x < colCount; x++ )
+      {
+         for ( var y = 0; y < rowCount; y++ )
+         {
+            for ( var z = 0; z < depthCount; z++ )
             {
-               Debug.Log( itemsLeft );
+               if ( _pixels[x, y, z].color.a > 0 )
+               {
+                  PopIn( _pixels[x, y, z] );
+               }
             }
          }
       }
+      //}
 
-      //VectorManager.useDraw3D = true;
-
-      //var startZ2 = -1 * ( depthCount * pixelScale ) / 2.0f;
-      //var startX2 = -1 * ( colCount * pixelScale ) / 2.0f;
-      //var startY2 = -1 * ( rowCount * pixelScale ) / 2.0f;
-      for ( int y = 0; y <= rowCount; y++ )
-      {
-         for ( int x = 0; x <= colCount; x++ )
-         {
-            //var lineName = string.Format( "X{0}Y{1}Z{2}", x, y, 0 );
-            //var point1 = new Vector3( startX2 + ( x * pixelScale ), startY2 + ( y * pixelScale ), startZ2 - pixelScale );
-            //var directionVec = new Vector3( 0, 0, 1 ) * ( depthCount + 2 ) * pixelScale;
-            //var point2 = point1 + directionVec;
-            //var points = new List<Vector3> { point1, point2 };
-            //var line = new VectorLine( lineName, points, null, 5, LineType.Continuous );
-            //line.Draw3DAuto();
-            //VectorLine.SetRay3D( Color.white, new Vector3( startX2 + ( x * pixelScale ), startY2 + ( y * pixelScale ), startZ2 - pixelScale ), new Vector3( 0, 0, 1 ) * ( depthCount + 2 ) * pixelScale );
-         }
-
-         for ( int z = 0; z <= depthCount; z++ )
-         {
-            //VectorLine.SetRay3D( Color.white, new Vector3( startX2 - pixelScale, startY2 + ( y * pixelScale ), startZ2 + ( z * pixelScale ) ), new Vector3( 1, 0, 0 ) * ( colCount + 2 ) * pixelScale );
-         }
-      }
-
-      for ( int x = 0; x <= colCount; x++ )
-      {
-         for ( int z = 0; z <= depthCount; z++ )
-         {
-            for ( int y = 0; y <= rowCount; y++ )
-            {
-               //  VectorLine.SetRay3D( Color.white, new Vector3( startX2 + ( x * pixelScale ), startY2 - pixelScale, startZ2 + ( z * pixelScale ) ), new Vector3( 0, 1, 0 ) * ( rowCount + 2 ) * pixelScale );
-            }
-         }
-      }
-
-      if ( !animatePopIn )
-      {
-         while ( _pixelsToPopIn.Any() )
-         {
-            PopIn( _pixelsToPopIn[0] );
-         }
-      }
+      DetectPlaceablePixels();
    }
 
    private void AddPixelToPopIn( int x, int y, int z, float startX, float startY, float startZ )
@@ -167,48 +158,164 @@ public class PixelManager : MonoBehaviour
          yIndex = y,
          zIndex = z,
          position = new Vector3( startX + ( x * pixelScale ), startY + ( y * pixelScale ), startZ + ( z * pixelScale ) ),
-         color = new Color( Random.value, Random.value, Random.value, 1 )
+         color = new Color( 0, 0, 0, 0 ),
+         prefab = null
       };
 
-      _pixelsToPopIn.Add( pixelConfig );
+      _pixels[x, y, z] = pixelConfig;
    }
 
    private void Update()
    {
-      if ( _pixelsToPopIn.Any() )
+      //if ( _pixelsToPopIn.Any() )
+      //{
+      //   _popInTimeElapsed += TimeSpan.FromSeconds( Time.deltaTime );
+      //   if ( ( _popInTimeElapsed.TotalSeconds / popInDelaySeconds ) > _poppedInCount )
+      //   {
+      //      PopIn( _pixelsToPopIn[0] );
+
+      //      if ( _audio )
+      //      {
+      //         if ( !_audio.isPlaying )
+      //         {
+      //            _audio.Play();
+      //         }
+
+      //         if ( !_pixelsToPopIn.Any() )
+      //         {
+      //            _audio.Stop();
+      //         }
+      //      }
+      //   }
+      //}
+
+      var pointerPos = new Vector3( _pointerPosX.GetValue(), _pointerPosY.GetValue(), 0 );
+      var ray = Camera.main.ScreenPointToRay( pointerPos );
+      Debug.DrawRay( ray.origin, ray.direction * 100, Color.green );
+
+      if ( _placePixel.IsActive() )
       {
-         _popInTimeElapsed += TimeSpan.FromSeconds( Time.deltaTime );
-         if ( ( _popInTimeElapsed.TotalSeconds / popInDelaySeconds ) > _poppedInCount )
+         var hits = Physics.RaycastAll( ray );
+         Pixel closestPixel = null;
+         var closestDistance = 0f;
+         foreach ( var h in hits )
          {
-            PopIn( _pixelsToPopIn[0] );
-
-            if ( _audio )
+            var pixel = h.transform.gameObject.GetComponent<Pixel>();
+            if ( pixel != null )
             {
-               if ( !_audio.isPlaying )
-               {
-                  _audio.Play();
-               }
+               var distance = Vector3.Distance( pixel.transform.position, Camera.main.transform.position );
 
-               if ( !_pixelsToPopIn.Any() )
+               if ( closestPixel == null || distance < closestDistance )
                {
-                  _audio.Stop();
+                  closestPixel = pixel;
+                  closestDistance = distance;
+               }
+               else
+               {
+                  if ( distance < closestDistance )
+                  {
+                     closestPixel = pixel;
+                     closestDistance = distance;
+                  }
                }
             }
+         }
+
+         var pixelConfig = GetPlaceablePixelConfigFromPrefab( closestPixel );
+         if ( pixelConfig != null )
+         {
+            pixelConfig.color = new Color( Random.value, Random.value, Random.value, 1 );
+            placeablePixels.Remove( pixelConfig );
+            DetectPlaceablePixels();
          }
       }
    }
 
    private void PopIn( PixelConfig config )
    {
+      var tmpEuler = transform.parent.localRotation.eulerAngles;
+      var tmpPostion = transform.parent.position;
+      transform.parent.localRotation = Quaternion.identity;
+      transform.parent.position = new Vector3( 0, 0, 0 );
+
       var pixel = (Pixel)Instantiate( pixelPrefab, config.position, Quaternion.identity );
       if ( pixel )
       {
          pixel.Color = config.color;
          pixel.transform.localScale = new Vector3( pixelScale, pixelScale, pixelScale );
-         _pixels[config.xIndex, config.yIndex, config.zIndex] = pixel;
-         _pixelsToPopIn.RemoveAt( 0 );
+         config.prefab = pixel;
 
          pixel.transform.parent = this.transform;
       }
+
+      transform.parent.localRotation = Quaternion.Euler( tmpEuler );
+      transform.parent.position = tmpPostion;
+   }
+
+   private void DetectPlaceablePixels()
+   {
+      var newPlaceablePixels = new List<PixelConfig>();
+
+      for ( var x = 0; x < colCount; x++ )
+      {
+         for ( var y = 0; y < rowCount; y++ )
+         {
+            for ( var z = 0; z < depthCount; z++ )
+            {
+               // Current pixel is visible
+               if ( _pixels[x, y, z].color.a > 0 )
+               {
+                  //Loop through all surrounding pixels
+                  for ( var x2 = x - 1; x2 <= x + 1; x2++ )
+                  {
+                     for ( var y2 = y - 1; y2 <= y + 1; y2++ )
+                     {
+                        for ( var z2 = z - 1; z2 <= z + 1; z2++ )
+                        {
+                           // Pixel is within bounding box
+                           if ( x2 >= 0 && y2 >= 0 & z2 >= 0 && x2 < colCount && y2 < rowCount && z2 < depthCount )
+                           {
+                              var equalAmount = 0;
+                              equalAmount += x2 == x ? 1 : 0;
+                              equalAmount += y2 == y ? 1 : 0;
+                              equalAmount += z2 == z ? 1 : 0;
+
+                              // Pixel is not diagonal
+                              if ( equalAmount >= 2 )
+                              {
+                                 var pixel = _pixels[x2, y2, z2];
+
+                                 // Already was a placeable pixel
+                                 if ( !placeablePixels.Contains( pixel ) )
+                                 {
+                                    // Pixel is not already visible
+                                    if ( pixel.color.a <= 0f )
+                                    {
+                                       newPlaceablePixels.Add( pixel );
+                                       placeablePixels.Add( pixel );
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+
+      newPlaceablePixels.ForEach( PopIn );
+   }
+
+   private PixelConfig GetPlaceablePixelConfigFromPrefab( Pixel prefab )
+   {
+      try
+      {
+         return placeablePixels.First( p => p.prefab == prefab );
+      }
+      catch ( Exception ) { }
+
+      return null;
    }
 }
