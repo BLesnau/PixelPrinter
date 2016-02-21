@@ -201,7 +201,8 @@ public class PixelManager : MonoBehaviour
          foreach ( var h in hits )
          {
             var pixel = h.transform.gameObject.GetComponent<Pixel>();
-            if ( pixel != null )
+            var config = GetPixelConfigFromPrefab( pixel );
+            if ( pixel != null && config != null && config.color.a > 0 )
             {
                var distance = Vector3.Distance( pixel.transform.position, Camera.main.transform.position );
 
@@ -216,6 +217,90 @@ public class PixelManager : MonoBehaviour
                   {
                      closestPixel = pixel;
                      closestDistance = distance;
+                  }
+               }
+            }
+         }
+
+         if ( closestPixel != null )
+         {
+            var pix = GetPixelConfigFromPrefab( closestPixel );
+
+            closestPixel = null;
+            closestDistance = 0f;
+
+            var x = pix.xIndex;
+            var y = pix.yIndex;
+            var z = pix.zIndex;
+
+            //Loop through all surrounding pixels
+            for ( var x2 = x - 1; x2 <= x + 1; x2++ )
+            {
+               for ( var y2 = y - 1; y2 <= y + 1; y2++ )
+               {
+                  for ( var z2 = z - 1; z2 <= z + 1; z2++ )
+                  {
+                     // Pixel is within bounding box
+                     if ( x2 >= 0 && y2 >= 0 & z2 >= 0 && x2 < colCount && y2 < rowCount && z2 < depthCount )
+                     {
+                        var equalAmount = 0;
+                        equalAmount += x2 == x ? 1 : 0;
+                        equalAmount += y2 == y ? 1 : 0;
+                        equalAmount += z2 == z ? 1 : 0;
+
+                        // Pixel is not diagonal
+                        if ( equalAmount >= 2 )
+                        {
+                           foreach ( var h in hits )
+                           {
+                              var hitPixel = h.transform.gameObject.GetComponent<Pixel>();
+                              var config = GetPixelConfigFromPrefab( hitPixel );
+                              if ( hitPixel != null && config.xIndex == x2 && config.yIndex == y2 && config.zIndex == z2 )
+                              {
+                                 var distance = Vector3.Distance( hitPixel.transform.position, Camera.main.transform.position );
+
+                                 if ( closestPixel == null || distance < closestDistance )
+                                 {
+                                    closestPixel = hitPixel;
+                                    closestDistance = distance;
+                                 }
+                                 else
+                                 {
+                                    if ( distance < closestDistance )
+                                    {
+                                       closestPixel = hitPixel;
+                                       closestDistance = distance;
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+         else
+         {
+            foreach ( var h in hits )
+            {
+               var pixel = h.transform.gameObject.GetComponent<Pixel>();
+               if ( pixel != null )
+               {
+                  var distance = Vector3.Distance( pixel.transform.position, Camera.main.transform.position );
+
+                  if ( closestPixel == null || distance < closestDistance )
+                  {
+                     closestPixel = pixel;
+                     closestDistance = distance;
+                  }
+                  else
+                  {
+                     if ( distance < closestDistance )
+                     {
+                        closestPixel = pixel;
+                        closestDistance = distance;
+                     }
                   }
                }
             }
@@ -315,6 +400,19 @@ public class PixelManager : MonoBehaviour
          return placeablePixels.First( p => p.prefab == prefab );
       }
       catch ( Exception ) { }
+
+      return null;
+   }
+
+   private PixelConfig GetPixelConfigFromPrefab( Pixel prefab )
+   {
+      foreach ( var p in _pixels )
+      {
+         if ( p.prefab == prefab )
+         {
+            return p;
+         }
+      }
 
       return null;
    }

@@ -12,8 +12,10 @@ public class ToggleEvent
    public MouseToggleEvent MouseEvent { get; private set; }
    public TouchToggleEvent TouchEvent { get; private set; }
 
-   private float _actionDelay = .3f;
+   private float _actionDelay = .2f;
    private float _actionStart = -1f;
+   private Vector2 _actionPosition = Vector2.zero;
+   private float _actionPositionChangeAllowed = 5f;
 
    public ToggleEvent( MouseToggleEvent mouseEvent, TouchToggleEvent touchEvent )
    {
@@ -82,13 +84,15 @@ public class ToggleEvent
                   if ( _actionStart < 0 )
                   {
                      _actionStart = Time.unscaledTime;
+                     _actionPosition = Input.mousePosition;
                   }
                }
                else
                {
                   if ( _actionStart >= 0 )
                   {
-                     if ( ( Time.unscaledTime - _actionStart ) < _actionDelay )
+                     var distance = Vector3.Distance( _actionPosition, Input.mousePosition );
+                     if ( ( ( Time.unscaledTime - _actionStart ) < _actionDelay ) && ( distance <= _actionPositionChangeAllowed ) )
                      {
                         _actionStart = -1f;
                         return true;
@@ -105,13 +109,15 @@ public class ToggleEvent
                   if ( _actionStart < 0 )
                   {
                      _actionStart = Time.unscaledTime;
+                     _actionPosition = Input.mousePosition;
                   }
                }
                else
                {
                   if ( _actionStart >= 0 )
                   {
-                     if ( ( Time.unscaledTime - _actionStart ) < _actionDelay )
+                     var distance = Vector3.Distance( _actionPosition, Input.mousePosition );
+                     if ( ( ( Time.unscaledTime - _actionStart ) < _actionDelay ) && (distance <= _actionPositionChangeAllowed) )
                      {
                         _actionStart = -1f;
                         return true;
@@ -203,8 +209,15 @@ public class ValueEvent
                {
                   var t1 = Input.touches[0];
                   var t2 = Input.touches[1];
-                  var prevDistance = (float)Math.Sqrt( Math.Pow( ( t1.position.x - t1.deltaPosition.x ) - ( t2.position.x - t2.deltaPosition.x ), 2 ) + Math.Pow( ( t1.position.y - t1.deltaPosition.y ) - ( t2.position.y - t2.deltaPosition.y ), 2 ) );
-                  var currDistance = (float)Math.Sqrt( Math.Pow( t1.position.x - t2.position.x, 2 ) + Math.Pow( t1.position.y - t2.position.y, 2 ) );
+                  var prevDistance =
+                     (float)
+                        Math.Sqrt(
+                           Math.Pow( ( t1.position.x - t1.deltaPosition.x ) - ( t2.position.x - t2.deltaPosition.x ), 2 ) +
+                           Math.Pow( ( t1.position.y - t1.deltaPosition.y ) - ( t2.position.y - t2.deltaPosition.y ), 2 ) );
+                  var currDistance =
+                     (float)
+                        Math.Sqrt( Math.Pow( t1.position.x - t2.position.x, 2 ) +
+                                   Math.Pow( t1.position.y - t2.position.y, 2 ) );
                   return ( currDistance - prevDistance ) * TouchMultiplier;
                }
                break;
