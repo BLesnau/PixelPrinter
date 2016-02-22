@@ -4,7 +4,7 @@ using UnityEngine;
 
 public enum MouseToggleEvent { LeftClick, RightClick, LeftDown, RightDown }
 public enum MouseValueEvent { XAxis, YAxis, XPos, YPos, Scroll }
-public enum TouchToggleEvent { OneFingerTap, TwoFingersTap, OneFingerDown, TwoFingersDown }
+public enum TouchToggleEvent { OneFingerTap, OneFingerDown, TwoFingersDown }
 public enum TouchValueEvent { OneFingerXAxis, OneFingerYAxis, OneFingerXPos, OneFingerYPos, PinchStretch }
 
 public class ToggleEvent
@@ -42,14 +42,6 @@ public class ToggleEvent
             case TouchToggleEvent.OneFingerTap:
             {
                if ( Input.touchCount == 1 && Input.touches.All( x => x.tapCount == 1 && x.phase == TouchPhase.Ended ) )
-               {
-                  return true;
-               }
-               break;
-            }
-            case TouchToggleEvent.TwoFingersTap:
-            {
-               if ( Input.touchCount == 2 && Input.touches.All( x => x.tapCount == 1 && x.phase == TouchPhase.Ended ) )
                {
                   return true;
                }
