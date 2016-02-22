@@ -41,9 +41,26 @@ public class ToggleEvent
          {
             case TouchToggleEvent.OneFingerTap:
             {
-               if ( Input.touchCount == 1 && Input.touches.All( x => x.tapCount == 1 && x.phase == TouchPhase.Ended ) )
+               if ( Input.touchCount == 1 && Input.touches.All( x => x.tapCount == 1 && x.phase == TouchPhase.Began ) )
                {
-                  return true;
+                  if ( _actionStart < 0 )
+                  {
+                     _actionStart = Time.unscaledTime;
+                     _actionPosition = Input.touches[0].position;
+                  }
+               }
+               else if ( Input.touchCount == 1 && Input.touches.All( x => x.tapCount == 1 && x.phase == TouchPhase.Ended ) )
+               {
+                  if ( _actionStart >= 0 )
+                  {
+                     var distance = Vector3.Distance( _actionPosition, Input.touches[0].position );
+                     if ( ( ( Time.unscaledTime - _actionStart ) < _actionDelay ) && ( distance <= _actionPositionChangeAllowed ) )
+                     {
+                        _actionStart = -1f;
+                        return true;
+                     }
+                     _actionStart = -1f;
+                  }
                }
                break;
             }
