@@ -78,16 +78,4 @@ public class CameraMovement : MonoBehaviour
       var zoom = _zoom.GetValue();
       Target.transform.parent.Translate( 0, 0, -zoom, Space.World );
    }
-
-   public void ResetRotationY()
-   {
-      //var euler = Target.transform.localRotation.eulerAngles;
-      //euler.z = 0;
-      //Target.transform.localRotation = Quaternion.Euler( euler );
-      //Target.transform.Rotate( new Vector3( 10, 0, 0 ), Space.World );
-
-      var euler = Target.transform.localRotation.eulerAngles;
-      //Target.transform.localRotation = Quaternion.Euler( -euler.x, -euler.y, -euler.z );
-      Target.transform.localRotation = Quaternion.Euler( 0, euler.y, euler.z ) * Quaternion.LookRotation( Camera.main.transform.forward, Camera.main.transform.up );
-   }
 }
