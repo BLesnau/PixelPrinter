@@ -318,10 +318,10 @@ public class PixelManager : MonoBehaviour
 
    private void PopIn( PixelConfig config )
    {
-      var tmpEuler = transform.parent.localRotation.eulerAngles;
-      var tmpPostion = transform.parent.position;
-      transform.parent.localRotation = Quaternion.identity;
-      transform.parent.position = new Vector3( 0, 0, 0 );
+      var tmpEuler = transform.localRotation.eulerAngles;
+      var tmpPostion = transform.position;
+      transform.localRotation = Quaternion.identity;
+      transform.position = new Vector3( 0, 0, 0 );
 
       var pixel = (Pixel)Instantiate( pixelPrefab, config.position, Quaternion.identity );
       if ( pixel )
@@ -333,8 +333,8 @@ public class PixelManager : MonoBehaviour
          pixel.transform.parent = this.transform;
       }
 
-      transform.parent.localRotation = Quaternion.Euler( tmpEuler );
-      transform.parent.position = tmpPostion;
+      transform.localRotation = Quaternion.Euler( tmpEuler );
+      transform.position = tmpPostion;
    }
 
    private void DetectPlaceablePixels()

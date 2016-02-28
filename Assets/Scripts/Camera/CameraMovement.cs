@@ -76,7 +76,7 @@ public class CameraMovement : MonoBehaviour
       }
 
       var zoom = _zoom.GetValue();
-      Target.transform.Translate( 0, 0, -zoom, Space.World );
+      Target.transform.parent.Translate( 0, 0, -zoom, Space.World );
    }
 
    public void ResetRotationY()
