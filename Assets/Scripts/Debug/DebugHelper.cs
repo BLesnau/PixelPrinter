@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -9,12 +10,16 @@ public class DebugHelper : MonoBehaviour
 
    private void Start()
    {
-      _debugInfo = new Dictionary<string, string>();
    }
 
    private void Update()
    {
 
+   }
+
+   public DebugHelper()
+   {
+      _debugInfo = new Dictionary<string, string>();
    }
 
    private void OnGUI()
@@ -39,6 +44,6 @@ public class DebugHelper : MonoBehaviour
 
    public static void Unlog( string name )
    {
-      _debugInfo.Remove(name);
+      _debugInfo.Remove( name );
    }
 }
