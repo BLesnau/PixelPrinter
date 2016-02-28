@@ -193,124 +193,34 @@ public class PixelManager : MonoBehaviour
       var ray = Camera.main.ScreenPointToRay( pointerPos );
       Debug.DrawRay( ray.origin, ray.direction * 100, Color.green );
 
+      PixelConfig selectedPixel = null;
       if ( _placePixel.IsActive() )
       {
          var hits = Physics.RaycastAll( ray );
-         Pixel closestPixel = null;
-         var closestDistance = 0f;
-         foreach ( var h in hits )
+         var sortedPixels = SortClosestPixels( ConvertToPixels( hits ) );
+         if ( sortedPixels.Any( p => p.color.a > 0 ) )
          {
-            var pixel = h.transform.gameObject.GetComponent<Pixel>();
-            var config = GetPixelConfigFromPrefab( pixel );
-            if ( pixel != null && config != null && config.color.a > 0 )
+            var pix = sortedPixels.First( p => p.color.a > 0 );
+            var sortedSurroundingPixels = SortClosestPixels( GetSurroundingPixels( sortedPixels, pix ) );
+            try
             {
-               var distance = Vector3.Distance( pixel.transform.position, Camera.main.transform.position );
-
-               if ( closestPixel == null || distance < closestDistance )
-               {
-                  closestPixel = pixel;
-                  closestDistance = distance;
-               }
-               else
-               {
-                  if ( distance < closestDistance )
-                  {
-                     closestPixel = pixel;
-                     closestDistance = distance;
-                  }
-               }
+               selectedPixel = sortedSurroundingPixels.First( p => placeablePixels.Contains( p ) );
             }
-         }
-
-         if ( closestPixel != null )
-         {
-            var pix = GetPixelConfigFromPrefab( closestPixel );
-
-            closestPixel = null;
-            closestDistance = 0f;
-
-            var x = pix.xIndex;
-            var y = pix.yIndex;
-            var z = pix.zIndex;
-
-            //Loop through all surrounding pixels
-            for ( var x2 = x - 1; x2 <= x + 1; x2++ )
-            {
-               for ( var y2 = y - 1; y2 <= y + 1; y2++ )
-               {
-                  for ( var z2 = z - 1; z2 <= z + 1; z2++ )
-                  {
-                     // Pixel is within bounding box
-                     if ( x2 >= 0 && y2 >= 0 & z2 >= 0 && x2 < colCount && y2 < rowCount && z2 < depthCount )
-                     {
-                        var equalAmount = 0;
-                        equalAmount += x2 == x ? 1 : 0;
-                        equalAmount += y2 == y ? 1 : 0;
-                        equalAmount += z2 == z ? 1 : 0;
-
-                        // Pixel is not diagonal
-                        if ( equalAmount >= 2 )
-                        {
-                           foreach ( var h in hits )
-                           {
-                              var hitPixel = h.transform.gameObject.GetComponent<Pixel>();
-                              var config = GetPixelConfigFromPrefab( hitPixel );
-                              if ( hitPixel != null && config.xIndex == x2 && config.yIndex == y2 && config.zIndex == z2 )
-                              {
-                                 var distance = Vector3.Distance( hitPixel.transform.position, Camera.main.transform.position );
-
-                                 if ( closestPixel == null || distance < closestDistance )
-                                 {
-                                    closestPixel = hitPixel;
-                                    closestDistance = distance;
-                                 }
-                                 else
-                                 {
-                                    if ( distance < closestDistance )
-                                    {
-                                       closestPixel = hitPixel;
-                                       closestDistance = distance;
-                                    }
-                                 }
-                              }
-                           }
-                        }
-                     }
-                  }
-               }
-            }
+            catch { }
          }
          else
          {
-            foreach ( var h in hits )
+            try
             {
-               var pixel = h.transform.gameObject.GetComponent<Pixel>();
-               if ( pixel != null )
-               {
-                  var distance = Vector3.Distance( pixel.transform.position, Camera.main.transform.position );
-
-                  if ( closestPixel == null || distance < closestDistance )
-                  {
-                     closestPixel = pixel;
-                     closestDistance = distance;
-                  }
-                  else
-                  {
-                     if ( distance < closestDistance )
-                     {
-                        closestPixel = pixel;
-                        closestDistance = distance;
-                     }
-                  }
-               }
+               selectedPixel = sortedPixels.First( p => placeablePixels.Contains( p ) );
             }
+            catch { }
          }
 
-         var pixelConfig = GetPlaceablePixelConfigFromPrefab( closestPixel );
-         if ( pixelConfig != null )
+         if ( selectedPixel != null )
          {
-            pixelConfig.color = new Color( Random.value, Random.value, Random.value, 1 );
-            placeablePixels.Remove( pixelConfig );
+            selectedPixel.color = new Color( Random.value, Random.value, Random.value, 1 );
+            placeablePixels.Remove( selectedPixel );
             DetectPlaceablePixels();
          }
       }
@@ -393,27 +303,71 @@ public class PixelManager : MonoBehaviour
       newPlaceablePixels.ForEach( PopIn );
    }
 
-   private PixelConfig GetPlaceablePixelConfigFromPrefab( Pixel prefab )
-   {
-      try
-      {
-         return placeablePixels.First( p => p.prefab == prefab );
-      }
-      catch ( Exception ) { }
-
-      return null;
-   }
-
    private PixelConfig GetPixelConfigFromPrefab( Pixel prefab )
    {
-      foreach ( var p in _pixels )
+      return _pixels.Cast<PixelConfig>().FirstOrDefault( p => p.prefab == prefab );
+   }
+
+   private IEnumerable<PixelConfig> ConvertToPixels( RaycastHit[] hits )
+   {
+      var hitList = hits.ToList();
+      return hitList.Select( h =>
       {
-         if ( p.prefab == prefab )
+         var pixel = h.transform.gameObject.GetComponent<Pixel>();
+         return GetPixelConfigFromPrefab( pixel );
+      } );
+   }
+
+   private IEnumerable<PixelConfig> SortClosestPixels( IEnumerable<PixelConfig> pixels )
+   {
+      var sortedList = pixels.ToList();
+      sortedList.Sort( ( p1, p2 ) =>
+      {
+         var distance1 = Vector3.Distance( p1.prefab.transform.position, Camera.main.transform.position );
+         var distance2 = Vector3.Distance( p2.prefab.transform.position, Camera.main.transform.position );
+         return distance1.CompareTo( distance2 );
+      } );
+
+      return sortedList;
+   }
+
+   private IEnumerable<PixelConfig> GetSurroundingPixels( IEnumerable<PixelConfig> pixels, PixelConfig pixel )
+   {
+      var surroundingPixels = new List<PixelConfig>();
+
+      var x = pixel.xIndex;
+      var y = pixel.yIndex;
+      var z = pixel.zIndex;
+
+      //Loop through all surrounding pixels
+      for ( var x2 = x - 1; x2 <= x + 1; x2++ )
+      {
+         for ( var y2 = y - 1; y2 <= y + 1; y2++ )
          {
-            return p;
+            for ( var z2 = z - 1; z2 <= z + 1; z2++ )
+            {
+               // Pixel is within bounding box
+               if ( x2 >= 0 && y2 >= 0 & z2 >= 0 && x2 < colCount && y2 < rowCount && z2 < depthCount )
+               {
+                  var equalAmount = 0;
+                  equalAmount += x2 == x ? 1 : 0;
+                  equalAmount += y2 == y ? 1 : 0;
+                  equalAmount += z2 == z ? 1 : 0;
+
+                  // Pixel is not diagonal
+                  if ( equalAmount >= 2 )
+                  {
+                     var correctPixel = pixels.Where( p => p.xIndex == x2 && p.yIndex == y2 && p.zIndex == z2 );
+                     if ( correctPixel.Count() == 1 )
+                     {
+                        surroundingPixels.Add( correctPixel.First() );
+                     }
+                  }
+               }
+            }
          }
       }
 
-      return null;
+      return surroundingPixels;
    }
 }
