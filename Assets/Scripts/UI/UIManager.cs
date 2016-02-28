@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
-   public Transform SelectBackground;
+   public GameObject SelectBackground;
 
    void Start()
    {
@@ -15,6 +16,7 @@ public class UIManager : MonoBehaviour
 
    public void ButtonClicked( Transform trans )
    {
-      SelectBackground.position = trans.position;
+      var args = new Hashtable() { { "position", trans.position }, { "time", 1 } };
+      iTween.MoveTo( SelectBackground, args );
    }
 }
