@@ -5,13 +5,13 @@ public class GridOverlay : MonoBehaviour
 {
    public enum RenderedAxis { X, Y, Z }
 
-   public PixelManager pixelManager;
-   public Color color = new Color( 0f, 0f, 0f, 0f );
-   public RenderedAxis renderedAxis = RenderedAxis.Z;
-   public int renderedAxisCount = 5;
-   public Shader shader;
+   public PixelManager PixelManager;
+   public Color Color = new Color( 0f, 0f, 0f, 0f );
+   public RenderedAxis RenderAxis = RenderedAxis.Z;
+   public int RenderedAxisCount = 5;
+   public Shader Shader;
 
-   public Material _lineMaterial;
+   public Material LineMaterial;
 
    void Start()
    {
@@ -26,19 +26,19 @@ public class GridOverlay : MonoBehaviour
    {
       //CreateLineMaterial();
 
-      var depthCount = pixelManager.depthCount;
-      var colCount = pixelManager.colCount;
-      var rowCount = pixelManager.rowCount;
-      var pixelScale = pixelManager.pixelScale;
+      var depthCount = PixelManager.DepthCount;
+      var colCount = PixelManager.ColCount;
+      var rowCount = PixelManager.RowCount;
+      var pixelScale = PixelManager.PixelScale;
 
       // set the current material
-      _lineMaterial.SetPass( 0 );
+      LineMaterial.SetPass( 0 );
       //var mat = new Material( new Shader() );
       //mat.SetPass( 0 );
       
 
       //GL.Color( color );
-      DebugHelper.Log( "Grid Color", color.ToString() );
+      DebugHelper.Log( "Grid Color", Color.ToString() );
 
       GL.Begin( GL.LINES );
 
@@ -54,16 +54,16 @@ public class GridOverlay : MonoBehaviour
       for ( float j = 0; j <= rowCount; j++ )
       {
 
-         if ( renderedAxis == RenderedAxis.Z )
+         if ( RenderAxis == RenderedAxis.Z )
          {
             //X axis lines
             //for ( float i = 0; i <= depthCount; i++ )
             //{
-            GL.Vertex3( startX, startY + j * pixelScale, startZ + ( renderedAxisCount - 1 ) * pixelScale );
-            GL.Vertex3( startX + colCount * pixelScale, startY + j * pixelScale, startZ + ( renderedAxisCount - 1 ) * pixelScale );
+            GL.Vertex3( startX, startY + j * pixelScale, startZ + ( RenderedAxisCount - 1 ) * pixelScale );
+            GL.Vertex3( startX + colCount * pixelScale, startY + j * pixelScale, startZ + ( RenderedAxisCount - 1 ) * pixelScale );
 
-            GL.Vertex3( startX, startY + j * pixelScale, startZ + renderedAxisCount * pixelScale );
-            GL.Vertex3( startX + colCount * pixelScale, startY + j * pixelScale, startZ + renderedAxisCount * pixelScale );
+            GL.Vertex3( startX, startY + j * pixelScale, startZ + RenderedAxisCount * pixelScale );
+            GL.Vertex3( startX + colCount * pixelScale, startY + j * pixelScale, startZ + RenderedAxisCount * pixelScale );
             //}
          }
 
@@ -75,18 +75,18 @@ public class GridOverlay : MonoBehaviour
          //   }
       }
 
-      if ( renderedAxis == RenderedAxis.Z )
+      if ( RenderAxis == RenderedAxis.Z )
       {
          //Y axis lines
          //for ( float i = 0; i <= depthCount; i++ )
          //{
          for ( float k = 0; k <= colCount; k++ )
          {
-            GL.Vertex3( startX + k * pixelScale, startY, startZ + ( renderedAxisCount - 1 ) * pixelScale );
-            GL.Vertex3( startX + k * pixelScale, startY + rowCount * pixelScale, startZ + ( renderedAxisCount - 1 ) * pixelScale );
+            GL.Vertex3( startX + k * pixelScale, startY, startZ + ( RenderedAxisCount - 1 ) * pixelScale );
+            GL.Vertex3( startX + k * pixelScale, startY + rowCount * pixelScale, startZ + ( RenderedAxisCount - 1 ) * pixelScale );
 
-            GL.Vertex3( startX + k * pixelScale, startY, startZ + renderedAxisCount * pixelScale );
-            GL.Vertex3( startX + k * pixelScale, startY + rowCount * pixelScale, startZ + renderedAxisCount * pixelScale );
+            GL.Vertex3( startX + k * pixelScale, startY, startZ + RenderedAxisCount * pixelScale );
+            GL.Vertex3( startX + k * pixelScale, startY + rowCount * pixelScale, startZ + RenderedAxisCount * pixelScale );
          }
          // }
       }
@@ -96,9 +96,9 @@ public class GridOverlay : MonoBehaviour
 
    void CreateLineMaterial()
    {
-      if ( _lineMaterial )
+      if ( LineMaterial )
       {
-         _lineMaterial.SetColor( "_Color", color );
+         LineMaterial.SetColor( "_Color", Color );
       }
       // if ( !_lineMaterial )
       //{

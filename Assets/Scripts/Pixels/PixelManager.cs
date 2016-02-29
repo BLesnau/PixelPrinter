@@ -8,40 +8,40 @@ public class PixelManager : MonoBehaviour
 {
    private class PixelConfig
    {
-      public int xIndex;
-      public int yIndex;
-      public int zIndex;
+      public int XIndex;
+      public int YIndex;
+      public int ZIndex;
 
-      public Vector3 position;
+      public Vector3 Position;
 
       private Color _color;
-      public Color color
+      public Color Color
       {
          get { return _color; }
          set
          {
             _color = value;
-            if ( prefab != null )
+            if ( Prefab != null )
             {
-               prefab.Color = value;
+               Prefab.Color = value;
             }
          }
       }
 
-      public Pixel prefab;
+      public Pixel Prefab;
    }
 
-   public Pixel pixelPrefab = null;
-   public int depthCount = 501;
-   public int colCount = 501;
-   public int rowCount = 501;
-   public float pixelScale = 1;
-   public float gridScale = .1f;
+   public Pixel PixelPrefab = null;
+   public int DepthCount = 21;
+   public int ColCount = 21;
+   public int RowCount = 21;
+   public float PixelScale = 1;
+   public float GridScale = .1f;
    //public float popInDelaySeconds = .1f;
    //public bool animatePopIn = true;
 
    private PixelConfig[,,] _pixels = null;
-   private List<PixelConfig> placeablePixels = null;
+   private List<PixelConfig> _placeablePixels = null;
    //private int _poppedInCount = 0;
    //private TimeSpan _popInTimeElapsed = TimeSpan.Zero;
    //private AudioSource _audio;
@@ -54,18 +54,18 @@ public class PixelManager : MonoBehaviour
    {
       //_audio = GetComponent<AudioSource>();
 
-      _pixels = new PixelConfig[colCount, rowCount, depthCount];
-      placeablePixels = new List<PixelConfig>();
+      _pixels = new PixelConfig[ColCount, RowCount, DepthCount];
+      _placeablePixels = new List<PixelConfig>();
 
-      var startZ = -1 * ( ( ( depthCount * pixelScale ) / 2.0f ) - ( pixelScale / 2.0f ) );
-      var startX = -1 * ( ( ( colCount * pixelScale ) / 2.0f ) - ( pixelScale / 2.0f ) );
-      var startY = -1 * ( ( ( rowCount * pixelScale ) / 2.0f ) - ( pixelScale / 2.0f ) );
+      var startZ = -1 * ( ( ( DepthCount * PixelScale ) / 2.0f ) - ( PixelScale / 2.0f ) );
+      var startX = -1 * ( ( ( ColCount * PixelScale ) / 2.0f ) - ( PixelScale / 2.0f ) );
+      var startY = -1 * ( ( ( RowCount * PixelScale ) / 2.0f ) - ( PixelScale / 2.0f ) );
 
-      if ( pixelPrefab )
+      if ( PixelPrefab )
       {
-         for ( int y = 0; y < rowCount; y++ )
+         for ( int y = 0; y < RowCount; y++ )
          {
-            var itemsLeft = ( colCount ) * ( depthCount );
+            var itemsLeft = ( ColCount ) * ( DepthCount );
             int x = 0;
             int z = 0;
             while ( itemsLeft > 0 )
@@ -73,7 +73,7 @@ public class PixelManager : MonoBehaviour
                int xStartIndex = x;
                int zStartIndex = z;
 
-               while ( x < colCount - xStartIndex )
+               while ( x < ColCount - xStartIndex )
                {
                   AddPixelToPopIn( x, y, z, startX, startY, startZ );
                   x++;
@@ -87,7 +87,7 @@ public class PixelManager : MonoBehaviour
                }
 
                z++;
-               while ( z < depthCount - zStartIndex )
+               while ( z < DepthCount - zStartIndex )
                {
                   AddPixelToPopIn( x, y, z, startX, startY, startZ );
                   z++;
@@ -128,17 +128,17 @@ public class PixelManager : MonoBehaviour
          }
       }
 
-      _pixels[colCount / 2, rowCount / 2, depthCount / 2].color = Color.red;
+      _pixels[ColCount / 2, RowCount / 2, DepthCount / 2].Color = Color.red;
 
       //if ( !animatePopIn )
       //{
-      for ( var x = 0; x < colCount; x++ )
+      for ( var x = 0; x < ColCount; x++ )
       {
-         for ( var y = 0; y < rowCount; y++ )
+         for ( var y = 0; y < RowCount; y++ )
          {
-            for ( var z = 0; z < depthCount; z++ )
+            for ( var z = 0; z < DepthCount; z++ )
             {
-               if ( _pixels[x, y, z].color.a > 0 )
+               if ( _pixels[x, y, z].Color.a > 0 )
                {
                   PopIn( _pixels[x, y, z] );
                }
@@ -154,12 +154,12 @@ public class PixelManager : MonoBehaviour
    {
       var pixelConfig = new PixelConfig()
       {
-         xIndex = x,
-         yIndex = y,
-         zIndex = z,
-         position = new Vector3( startX + ( x * pixelScale ), startY + ( y * pixelScale ), startZ + ( z * pixelScale ) ),
-         color = new Color( 0, 0, 0, 0 ),
-         prefab = null
+         XIndex = x,
+         YIndex = y,
+         ZIndex = z,
+         Position = new Vector3( startX + ( x * PixelScale ), startY + ( y * PixelScale ), startZ + ( z * PixelScale ) ),
+         Color = new Color( 0, 0, 0, 0 ),
+         Prefab = null
       };
 
       _pixels[x, y, z] = pixelConfig;
@@ -198,13 +198,13 @@ public class PixelManager : MonoBehaviour
       {
          var hits = Physics.RaycastAll( ray );
          var sortedPixels = SortClosestPixels( ConvertToPixels( hits ) );
-         if ( sortedPixels.Any( p => p.color.a > 0 ) )
+         if ( sortedPixels.Any( p => p.Color.a > 0 ) )
          {
-            var pix = sortedPixels.First( p => p.color.a > 0 );
+            var pix = sortedPixels.First( p => p.Color.a > 0 );
             var sortedSurroundingPixels = SortClosestPixels( GetSurroundingPixels( sortedPixels, pix ) );
             try
             {
-               selectedPixel = sortedSurroundingPixels.First( p => placeablePixels.Contains( p ) );
+               selectedPixel = sortedSurroundingPixels.First( p => _placeablePixels.Contains( p ) );
             }
             catch { }
          }
@@ -212,15 +212,15 @@ public class PixelManager : MonoBehaviour
          {
             try
             {
-               selectedPixel = sortedPixels.First( p => placeablePixels.Contains( p ) );
+               selectedPixel = sortedPixels.First( p => _placeablePixels.Contains( p ) );
             }
             catch { }
          }
 
          if ( selectedPixel != null )
          {
-            selectedPixel.color = new Color( Random.value, Random.value, Random.value, 1 );
-            placeablePixels.Remove( selectedPixel );
+            selectedPixel.Color = new Color( Random.value, Random.value, Random.value, 1 );
+            _placeablePixels.Remove( selectedPixel );
             DetectPlaceablePixels();
          }
       }
@@ -233,12 +233,12 @@ public class PixelManager : MonoBehaviour
       transform.localRotation = Quaternion.identity;
       transform.position = new Vector3( 0, 0, 0 );
 
-      var pixel = (Pixel)Instantiate( pixelPrefab, config.position, Quaternion.identity );
+      var pixel = (Pixel)Instantiate( PixelPrefab, config.Position, Quaternion.identity );
       if ( pixel )
       {
-         pixel.Color = config.color;
-         pixel.transform.localScale = new Vector3( pixelScale, pixelScale, pixelScale );
-         config.prefab = pixel;
+         pixel.Color = config.Color;
+         pixel.transform.localScale = new Vector3( PixelScale, PixelScale, PixelScale );
+         config.Prefab = pixel;
 
          pixel.transform.parent = this.transform;
       }
@@ -251,14 +251,14 @@ public class PixelManager : MonoBehaviour
    {
       var newPlaceablePixels = new List<PixelConfig>();
 
-      for ( var x = 0; x < colCount; x++ )
+      for ( var x = 0; x < ColCount; x++ )
       {
-         for ( var y = 0; y < rowCount; y++ )
+         for ( var y = 0; y < RowCount; y++ )
          {
-            for ( var z = 0; z < depthCount; z++ )
+            for ( var z = 0; z < DepthCount; z++ )
             {
                // Current pixel is visible
-               if ( _pixels[x, y, z].color.a > 0 )
+               if ( _pixels[x, y, z].Color.a > 0 )
                {
                   //Loop through all surrounding pixels
                   for ( var x2 = x - 1; x2 <= x + 1; x2++ )
@@ -268,7 +268,7 @@ public class PixelManager : MonoBehaviour
                         for ( var z2 = z - 1; z2 <= z + 1; z2++ )
                         {
                            // Pixel is within bounding box
-                           if ( x2 >= 0 && y2 >= 0 & z2 >= 0 && x2 < colCount && y2 < rowCount && z2 < depthCount )
+                           if ( x2 >= 0 && y2 >= 0 & z2 >= 0 && x2 < ColCount && y2 < RowCount && z2 < DepthCount )
                            {
                               var equalAmount = 0;
                               equalAmount += x2 == x ? 1 : 0;
@@ -281,13 +281,13 @@ public class PixelManager : MonoBehaviour
                                  var pixel = _pixels[x2, y2, z2];
 
                                  // Already was a placeable pixel
-                                 if ( !placeablePixels.Contains( pixel ) )
+                                 if ( !_placeablePixels.Contains( pixel ) )
                                  {
                                     // Pixel is not already visible
-                                    if ( pixel.color.a <= 0f )
+                                    if ( pixel.Color.a <= 0f )
                                     {
                                        newPlaceablePixels.Add( pixel );
-                                       placeablePixels.Add( pixel );
+                                       _placeablePixels.Add( pixel );
                                     }
                                  }
                               }
@@ -305,7 +305,7 @@ public class PixelManager : MonoBehaviour
 
    private PixelConfig GetPixelConfigFromPrefab( Pixel prefab )
    {
-      return _pixels.Cast<PixelConfig>().FirstOrDefault( p => p.prefab == prefab );
+      return _pixels.Cast<PixelConfig>().FirstOrDefault( p => p.Prefab == prefab );
    }
 
    private IEnumerable<PixelConfig> ConvertToPixels( RaycastHit[] hits )
@@ -323,8 +323,8 @@ public class PixelManager : MonoBehaviour
       var sortedList = pixels.ToList();
       sortedList.Sort( ( p1, p2 ) =>
       {
-         var distance1 = Vector3.Distance( p1.prefab.transform.position, Camera.main.transform.position );
-         var distance2 = Vector3.Distance( p2.prefab.transform.position, Camera.main.transform.position );
+         var distance1 = Vector3.Distance( p1.Prefab.transform.position, Camera.main.transform.position );
+         var distance2 = Vector3.Distance( p2.Prefab.transform.position, Camera.main.transform.position );
          return distance1.CompareTo( distance2 );
       } );
 
@@ -335,9 +335,9 @@ public class PixelManager : MonoBehaviour
    {
       var surroundingPixels = new List<PixelConfig>();
 
-      var x = pixel.xIndex;
-      var y = pixel.yIndex;
-      var z = pixel.zIndex;
+      var x = pixel.XIndex;
+      var y = pixel.YIndex;
+      var z = pixel.ZIndex;
 
       //Loop through all surrounding pixels
       for ( var x2 = x - 1; x2 <= x + 1; x2++ )
@@ -347,7 +347,7 @@ public class PixelManager : MonoBehaviour
             for ( var z2 = z - 1; z2 <= z + 1; z2++ )
             {
                // Pixel is within bounding box
-               if ( x2 >= 0 && y2 >= 0 & z2 >= 0 && x2 < colCount && y2 < rowCount && z2 < depthCount )
+               if ( x2 >= 0 && y2 >= 0 & z2 >= 0 && x2 < ColCount && y2 < RowCount && z2 < DepthCount )
                {
                   var equalAmount = 0;
                   equalAmount += x2 == x ? 1 : 0;
@@ -357,7 +357,7 @@ public class PixelManager : MonoBehaviour
                   // Pixel is not diagonal
                   if ( equalAmount >= 2 )
                   {
-                     var correctPixel = pixels.Where( p => p.xIndex == x2 && p.yIndex == y2 && p.zIndex == z2 );
+                     var correctPixel = pixels.Where( p => p.XIndex == x2 && p.YIndex == y2 && p.ZIndex == z2 );
                      if ( correctPixel.Count() == 1 )
                      {
                         surroundingPixels.Add( correctPixel.First() );

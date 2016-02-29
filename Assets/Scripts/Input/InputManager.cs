@@ -15,7 +15,7 @@ public class ToggleEvent
    private float _actionDelay = .2f;
    private float _actionStart = -1f;
    private Vector2 _actionPosition = Vector2.zero;
-   private float _actionPositionChangeAllowed = 5f;
+   private readonly float _actionPositionChangeAllowed = 5f;
 
    public ToggleEvent( MouseToggleEvent mouseEvent, TouchToggleEvent touchEvent )
    {
