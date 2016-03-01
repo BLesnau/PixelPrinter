@@ -1,11 +1,10 @@
-﻿using System;
-using UnityEngine;
-using System.Collections;
+﻿using UnityEngine;
 using System.Collections.Generic;
 
 public class DebugHelper : MonoBehaviour
 {
-   private static bool ShowDebug = false;
+   public bool ShowDebug = false;
+
    private static Dictionary<string, string> _debugInfo;
 
    private void Start()
