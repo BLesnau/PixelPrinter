@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -31,7 +30,10 @@ public class PixelManager : MonoBehaviour
       public Pixel Prefab;
    }
 
+   public UIManager UIManager;
+
    public Pixel PixelPrefab = null;
+
    public int DepthCount = 21;
    public int ColCount = 21;
    public int RowCount = 21;
@@ -201,14 +203,23 @@ public class PixelManager : MonoBehaviour
          if ( sortedPixels.Any( p => p.Color.a > 0 ) )
          {
             var pix = sortedPixels.First( p => p.Color.a > 0 );
-            var sortedSurroundingPixels = SortClosestPixels( GetSurroundingPixels( sortedPixels, pix ) );
-            try
+            if ( UIManager.SelectedTool == UIManager.Tools.Add )
             {
-               selectedPixel = sortedSurroundingPixels.First( p => _placeablePixels.Contains( p ) );
+               var sortedSurroundingPixels = SortClosestPixels( GetSurroundingPixels( sortedPixels, pix ) );
+               try
+               {
+                  selectedPixel = sortedSurroundingPixels.First( p => _placeablePixels.Contains( p ) );
+               }
+               catch
+               {
+               }
             }
-            catch { }
+            else if ( UIManager.SelectedTool == UIManager.Tools.Remove )
+            {
+               selectedPixel = pix;
+            }
          }
-         else
+         else if ( UIManager.SelectedTool == UIManager.Tools.Add )
          {
             try
             {
@@ -219,8 +230,16 @@ public class PixelManager : MonoBehaviour
 
          if ( selectedPixel != null )
          {
-            selectedPixel.Color = new Color( Random.value, Random.value, Random.value, 1 );
-            _placeablePixels.Remove( selectedPixel );
+            if ( UIManager.SelectedTool == UIManager.Tools.Add )
+            {
+               selectedPixel.Color = new Color( Random.value, Random.value, Random.value, 1 );
+               _placeablePixels.Remove( selectedPixel );
+            }
+            else if ( UIManager.SelectedTool == UIManager.Tools.Remove )
+            {
+               PopOut( selectedPixel );
+            }
+
             DetectPlaceablePixels();
          }
       }
@@ -247,47 +266,64 @@ public class PixelManager : MonoBehaviour
       transform.position = tmpPostion;
    }
 
+   private void PopOut( PixelConfig config )
+   {
+      if ( config.Prefab )
+      {
+         Destroy( config.Prefab.gameObject );
+
+         var currentColor = config.Color;
+         currentColor.a = 0;
+         config.Color = currentColor;
+      }
+   }
+
    private void DetectPlaceablePixels()
    {
-      var newPlaceablePixels = new List<PixelConfig>();
+      _placeablePixels.ForEach( PopOut );
+      _placeablePixels.Clear();
 
-      for ( var x = 0; x < ColCount; x++ )
+      var doIt = true;
+      if ( doIt )
       {
-         for ( var y = 0; y < RowCount; y++ )
+         for ( var x = 0; x < ColCount; x++ )
          {
-            for ( var z = 0; z < DepthCount; z++ )
+            for ( var y = 0; y < RowCount; y++ )
             {
-               // Current pixel is visible
-               if ( _pixels[x, y, z].Color.a > 0 )
+               for ( var z = 0; z < DepthCount; z++ )
                {
-                  //Loop through all surrounding pixels
-                  for ( var x2 = x - 1; x2 <= x + 1; x2++ )
+                  // Current pixel is visible
+                  if ( _pixels[x, y, z].Color.a > 0 )
                   {
-                     for ( var y2 = y - 1; y2 <= y + 1; y2++ )
+                     //Loop through all surrounding pixels
+                     for ( var x2 = x - 1; x2 <= x + 1; x2++ )
                      {
-                        for ( var z2 = z - 1; z2 <= z + 1; z2++ )
+                        for ( var y2 = y - 1; y2 <= y + 1; y2++ )
                         {
-                           // Pixel is within bounding box
-                           if ( x2 >= 0 && y2 >= 0 & z2 >= 0 && x2 < ColCount && y2 < RowCount && z2 < DepthCount )
+                           for ( var z2 = z - 1; z2 <= z + 1; z2++ )
                            {
-                              var equalAmount = 0;
-                              equalAmount += x2 == x ? 1 : 0;
-                              equalAmount += y2 == y ? 1 : 0;
-                              equalAmount += z2 == z ? 1 : 0;
-
-                              // Pixel is not diagonal
-                              if ( equalAmount >= 2 )
+                              // Pixel is within bounding box
+                              if ( x2 >= 0 && y2 >= 0 & z2 >= 0 && x2 < ColCount && y2 < RowCount && z2 < DepthCount )
                               {
-                                 var pixel = _pixels[x2, y2, z2];
+                                 var equalAmount = 0;
+                                 equalAmount += x2 == x ? 1 : 0;
+                                 equalAmount += y2 == y ? 1 : 0;
+                                 equalAmount += z2 == z ? 1 : 0;
 
-                                 // Already was a placeable pixel
-                                 if ( !_placeablePixels.Contains( pixel ) )
+                                 // Pixel is not diagonal
+                                 if ( equalAmount >= 2 )
                                  {
-                                    // Pixel is not already visible
-                                    if ( pixel.Color.a <= 0f )
+                                    var pixel = _pixels[x2, y2, z2];
+
+                                    // Already was a placeable pixel
+                                    if ( !_placeablePixels.Contains( pixel ) )
                                     {
-                                       newPlaceablePixels.Add( pixel );
-                                       _placeablePixels.Add( pixel );
+                                       // Pixel is not already visible
+                                       if ( pixel.Color.a <= 0f )
+                                       {
+                                          _placeablePixels.Add( pixel );
+                                          PopIn( pixel );
+                                       }
                                     }
                                  }
                               }
@@ -299,8 +335,6 @@ public class PixelManager : MonoBehaviour
             }
          }
       }
-
-      newPlaceablePixels.ForEach( PopIn );
    }
 
    private PixelConfig GetPixelConfigFromPrefab( Pixel prefab )
