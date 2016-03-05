@@ -7,33 +7,41 @@ public class ColorPicker : MonoBehaviour
 {
    public Image Image;
    public Color BackgroundColor = Color.white;
+   public Image HueSelector;
+   public Image SaturationValueSelector;
 
+   private static float _upperCirclePercent = .95f;
+   private static float _lowerCirclePercent = .60f;
+   private static float _boxSizePercent = .40f;
+   private static int _textureSize = 1000;
+
+   private bool _dragHueStarted = false;
+   private bool _dragSatValStarted = false;
+   private bool _dragOtherStarted = false;
+
+   private readonly ToggleEvent _pointerDown = new ToggleEvent( MouseToggleEvent.LeftDown, TouchToggleEvent.OneFingerDown );
    private readonly ValueEvent _pointerPosX = new ValueEvent( MouseValueEvent.XPos, TouchValueEvent.OneFingerXPos );
    private readonly ValueEvent _pointerPosY = new ValueEvent( MouseValueEvent.YPos, TouchValueEvent.OneFingerYPos );
 
    void Start()
    {
-      var upperCirclePercent = .95f;
-      var lowerCirclePercent = .60f;
-      var textureSize = 1000;
-      var circleStartDistance = lowerCirclePercent * textureSize / 2f;
-      var circleEndDistance = upperCirclePercent * textureSize / 2f;
+      var middle = new Vector2( ( _textureSize - 1 ) / 2f, ( _textureSize - 1 ) / 2f );
+      var circleStartDistance = _lowerCirclePercent * _textureSize / 2f;
+      var circleEndDistance = _upperCirclePercent * _textureSize / 2f;
 
-      var middle = new Vector2( ( textureSize - 1 ) / 2f, ( textureSize - 1 ) / 2f );
-
-      var hueCircle = new Texture2D( textureSize, textureSize );
+      var hueCircle = new Texture2D( _textureSize, _textureSize );
 
       // Fill with background color first
-      var colors = new List<Color>( textureSize * textureSize );
+      var colors = new List<Color>( _textureSize * _textureSize );
       for ( int i = 0; i < colors.Capacity; i++ )
       {
          colors.Add( BackgroundColor );
       }
       hueCircle.SetPixels( colors.ToArray() );
 
-      for ( int x = 0; x < textureSize; x++ )
+      for ( int x = 0; x < _textureSize; x++ )
       {
-         for ( int y = 0; y < textureSize; y++ )
+         for ( int y = 0; y < _textureSize; y++ )
          {
             var dx = x - middle.x;
             var dy = y - middle.y;
@@ -52,8 +60,7 @@ public class ColorPicker : MonoBehaviour
          }
       }
 
-      var boxSizePercent = .40f;
-      var boxSize = boxSizePercent * textureSize;
+      var boxSize = _boxSizePercent * _textureSize;
       var boxStart = Convert.ToInt16( middle.x - boxSize / 2f );
       for ( int x = boxStart; x < boxStart + boxSize + 1; x++ )
       {
@@ -76,32 +83,68 @@ public class ColorPicker : MonoBehaviour
 
    void Update()
    {
-      Vector2 localCursor;
-      var pointerPos = new Vector2( _pointerPosX.GetValue(), _pointerPosY.GetValue() );
-      var rect = Image.rectTransform;
+      if ( _pointerDown.IsActive() )
+      {
+         if ( !_dragOtherStarted )
+         {
+            var circleStartDistance = _lowerCirclePercent * Image.rectTransform.rect.width / 2f;
+            var circleEndDistance = _upperCirclePercent * Image.rectTransform.rect.width / 2f;
 
-      RectTransformUtility.ScreenPointToLocalPointInRectangle( rect, pointerPos, null, out localCursor );
+            Vector2 localCursor;
+            var pointerPos = new Vector2( _pointerPosX.GetValue(), _pointerPosY.GetValue() );
+            var rect = Image.rectTransform;
 
-      DebugHelper.Log( "Color Picker Pos", localCursor.ToString() );
+            RectTransformUtility.ScreenPointToLocalPointInRectangle( rect, pointerPos, null, out localCursor );
+
+            var dx = localCursor.x;
+            var dy = localCursor.y;
+            var theta = Mathf.Atan2( dy, dx );
+
+            if ( !_dragSatValStarted )
+            {
+               var distanceFromCenter = Mathf.Sqrt( Mathf.Pow( dx, 2 ) + Mathf.Pow( dy, 2 ) );
+               if ( _dragHueStarted || ( distanceFromCenter >= circleStartDistance && distanceFromCenter <= circleEndDistance ) )
+               {
+                  _dragHueStarted = true;
+                  var selectorPosPercent = _lowerCirclePercent + ( ( _upperCirclePercent - _lowerCirclePercent ) / 2f );
+                  var selectorDistance = ( selectorPosPercent * Image.rectTransform.rect.width ) / 2f;
+
+                  var selectorPos = MathHelper.FindPoint( Vector2.zero, localCursor, selectorDistance );
+                  selectorPos.Scale( Image.transform.lossyScale );
+
+                  HueSelector.transform.position = Image.transform.position +
+                                                   new Vector3( selectorPos.x, selectorPos.y, 0 );
+               }
+            }
+
+            if ( !_dragHueStarted )
+            {
+               var boxSize = _boxSizePercent * Image.rectTransform.rect.width;
+               var boxStart = Convert.ToInt16( -boxSize / 2f );
+               var boxRect = new Rect( boxStart, boxStart, boxSize, boxSize );
+               if ( _dragSatValStarted || ( ( dx >= boxRect.xMin ) && ( dx <= boxRect.xMax ) && ( dy >= boxRect.yMin ) && ( dy <= boxRect.yMax ) ) )
+               {
+                  _dragSatValStarted = true;
+
+                  var selectorPos = new Vector3( localCursor.x, localCursor.y, 0 );
+                  selectorPos.x = Mathf.Max( selectorPos.x, boxRect.xMin );
+                  selectorPos.x = Mathf.Min( selectorPos.x, boxRect.xMax );
+                  selectorPos.y = Mathf.Max( selectorPos.y, boxRect.yMin );
+                  selectorPos.y = Mathf.Min( selectorPos.y, boxRect.yMax );
+                  selectorPos.Scale( Image.transform.lossyScale );
+
+                  SaturationValueSelector.transform.position = Image.transform.position + selectorPos;
+               }
+            }
+
+            _dragOtherStarted = !( _dragHueStarted || _dragSatValStarted );
+         }
+      }
+      else
+      {
+         _dragHueStarted = false;
+         _dragSatValStarted = false;
+         _dragOtherStarted = false;
+      }
    }
-
-   //public EventSystem EventSystem { get; set; }
-
-   //// Use this for initialization
-   //void Start()
-   //{
-   //   EventSystem = GameObject.Find( "EventSystem" ).GetComponent<EventSystem>();
-   //}
-
-   //// Update is called once per frame
-   //void Update()
-   //{
-   //   if ( EventSystem )
-   //   {   
-   //      if ( EventSystem.RaycastAll(  )IsPointerOverGameObject() )
-   //      {
-   //         DebugHelper.Log( "Event System", "YEAH" );
-   //      }
-   //   }
-   //}
 }
