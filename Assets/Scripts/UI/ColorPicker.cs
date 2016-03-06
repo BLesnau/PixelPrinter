@@ -13,12 +13,14 @@ public class ColorPicker : MonoBehaviour
    private static float _upperCirclePercent = .95f;
    private static float _lowerCirclePercent = .60f;
    private static float _boxSizePercent = .40f;
-   private static int _textureSize = 1000;
+   private static int _textureSize = 500;
    private static Vector2 _middle = new Vector2( ( _textureSize - 1 ) / 2f, ( _textureSize - 1 ) / 2f );
 
    private bool _dragHueStarted = false;
    private bool _dragSatValStarted = false;
    private bool _dragOtherStarted = false;
+
+   private float _hueTheta = 0;
 
    private readonly ToggleEvent _pointerDown = new ToggleEvent( MouseToggleEvent.LeftDown, TouchToggleEvent.OneFingerDown );
    private readonly ValueEvent _pointerPosX = new ValueEvent( MouseValueEvent.XPos, TouchValueEvent.OneFingerXPos );
@@ -26,12 +28,12 @@ public class ColorPicker : MonoBehaviour
 
    void Start()
    {
+      MoveHueSelector( Vector2.up );
+      MoveSatValSelector( Vector2.zero, new Rect( 0, 0, 0, 0 ) );
+
       FillBackground( BackgroundColor );
       DrawHueCircle();
       DrawSatValBox();
-
-      MoveHueSelector( Vector2.up );
-      MoveSatValSelector( Vector2.zero, new Rect( 0, 0, 0, 0 ) );
    }
 
    void Update()
@@ -60,6 +62,7 @@ public class ColorPicker : MonoBehaviour
                {
                   _dragHueStarted = true;
                   MoveHueSelector( localCursor );
+                  DrawSatValBox();
                }
             }
 
@@ -139,6 +142,9 @@ public class ColorPicker : MonoBehaviour
    {
       var texture = new Texture2D( Image.sprite.texture.width, Image.sprite.texture.height );
       texture.SetPixels( Image.sprite.texture.GetPixels() );
+      //var pixels = texture.GetPixels();
+
+      var hue = ( _hueTheta + Mathf.PI ) / ( 2 * Mathf.PI );
 
       var boxSize = _boxSizePercent * _textureSize;
       var boxStart = Convert.ToInt16( _middle.x - boxSize / 2f );
@@ -146,16 +152,16 @@ public class ColorPicker : MonoBehaviour
       {
          for ( int y = boxStart; y < boxStart + boxSize + 1; y++ )
          {
-            var theta = Mathf.PI / 2f;
-            var hue = ( theta + Mathf.PI ) / ( 2 * Mathf.PI );
             var sat = ( x - boxStart ) / ( boxSize + 1 );
             var val = ( y - boxStart ) / ( boxSize + 1 );
             var color = Color.HSVToRGB( hue, sat, val );
 
+            //pixels[y * texture.width + x] = color;
             texture.SetPixel( x, y, color );
          }
       }
 
+      //texture.SetPixels( pixels );
       texture.Apply();
       Image.sprite = Sprite.Create( texture, new Rect( Image.sprite.rect.position, new Vector2( texture.width, texture.height ) ), Image.sprite.pivot );
    }
@@ -169,6 +175,8 @@ public class ColorPicker : MonoBehaviour
       selectorPos.Scale( Image.transform.lossyScale );
 
       HueSelector.transform.position = Image.transform.position + new Vector3( selectorPos.x, selectorPos.y, 0 );
+
+      _hueTheta = Mathf.Atan2( selectorPos.x, selectorPos.y );
    }
 
    private void MoveSatValSelector( Vector2 localCursor, Rect boxRect )
