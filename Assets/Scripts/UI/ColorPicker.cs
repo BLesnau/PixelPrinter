@@ -79,6 +79,9 @@ public class ColorPicker : MonoBehaviour
       hueCircle.Apply();
 
       Image.sprite = Sprite.Create( hueCircle, new Rect( Image.sprite.rect.position, new Vector2( hueCircle.width, hueCircle.height ) ), Image.sprite.pivot );
+
+      MoveHueSelector( Vector2.up );
+      MoveSatValSelector( Vector2.zero, new Rect( 0, 0, 0, 0 ) );
    }
 
    void Update()
@@ -106,14 +109,7 @@ public class ColorPicker : MonoBehaviour
                if ( _dragHueStarted || ( distanceFromCenter >= circleStartDistance && distanceFromCenter <= circleEndDistance ) )
                {
                   _dragHueStarted = true;
-                  var selectorPosPercent = _lowerCirclePercent + ( ( _upperCirclePercent - _lowerCirclePercent ) / 2f );
-                  var selectorDistance = ( selectorPosPercent * Image.rectTransform.rect.width ) / 2f;
-
-                  var selectorPos = MathHelper.FindPoint( Vector2.zero, localCursor, selectorDistance );
-                  selectorPos.Scale( Image.transform.lossyScale );
-
-                  HueSelector.transform.position = Image.transform.position +
-                                                   new Vector3( selectorPos.x, selectorPos.y, 0 );
+                  MoveHueSelector( localCursor );
                }
             }
 
@@ -126,14 +122,7 @@ public class ColorPicker : MonoBehaviour
                {
                   _dragSatValStarted = true;
 
-                  var selectorPos = new Vector3( localCursor.x, localCursor.y, 0 );
-                  selectorPos.x = Mathf.Max( selectorPos.x, boxRect.xMin );
-                  selectorPos.x = Mathf.Min( selectorPos.x, boxRect.xMax );
-                  selectorPos.y = Mathf.Max( selectorPos.y, boxRect.yMin );
-                  selectorPos.y = Mathf.Min( selectorPos.y, boxRect.yMax );
-                  selectorPos.Scale( Image.transform.lossyScale );
-
-                  SaturationValueSelector.transform.position = Image.transform.position + selectorPos;
+                  MoveSatValSelector( localCursor, boxRect );
                }
             }
 
@@ -146,5 +135,28 @@ public class ColorPicker : MonoBehaviour
          _dragSatValStarted = false;
          _dragOtherStarted = false;
       }
+   }
+
+   private void MoveHueSelector( Vector2 localCursor )
+   {
+      var selectorPosPercent = _lowerCirclePercent + ( ( _upperCirclePercent - _lowerCirclePercent ) / 2f );
+      var selectorDistance = ( selectorPosPercent * Image.rectTransform.rect.width ) / 2f;
+
+      var selectorPos = MathHelper.FindPoint( Vector2.zero, localCursor, selectorDistance );
+      selectorPos.Scale( Image.transform.lossyScale );
+
+      HueSelector.transform.position = Image.transform.position + new Vector3( selectorPos.x, selectorPos.y, 0 );
+   }
+
+   private void MoveSatValSelector( Vector2 localCursor, Rect boxRect )
+   {
+      var selectorPos = new Vector3( localCursor.x, localCursor.y, 0 );
+      selectorPos.x = Mathf.Max( selectorPos.x, boxRect.xMin );
+      selectorPos.x = Mathf.Min( selectorPos.x, boxRect.xMax );
+      selectorPos.y = Mathf.Max( selectorPos.y, boxRect.yMin );
+      selectorPos.y = Mathf.Min( selectorPos.y, boxRect.yMax );
+      selectorPos.Scale( Image.transform.lossyScale );
+
+      SaturationValueSelector.transform.position = Image.transform.position + selectorPos;
    }
 }
