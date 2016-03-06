@@ -14,6 +14,7 @@ public class ColorPicker : MonoBehaviour
    private static float _lowerCirclePercent = .60f;
    private static float _boxSizePercent = .40f;
    private static int _textureSize = 1000;
+   private static Vector2 _middle = new Vector2( ( _textureSize - 1 ) / 2f, ( _textureSize - 1 ) / 2f );
 
    private bool _dragHueStarted = false;
    private bool _dragSatValStarted = false;
@@ -25,60 +26,9 @@ public class ColorPicker : MonoBehaviour
 
    void Start()
    {
-      var middle = new Vector2( ( _textureSize - 1 ) / 2f, ( _textureSize - 1 ) / 2f );
-      var circleStartDistance = _lowerCirclePercent * _textureSize / 2f;
-      var circleEndDistance = _upperCirclePercent * _textureSize / 2f;
-
-      var hueCircle = new Texture2D( _textureSize, _textureSize );
-
-      // Fill with background color first
-      var colors = new List<Color>( _textureSize * _textureSize );
-      for ( int i = 0; i < colors.Capacity; i++ )
-      {
-         colors.Add( BackgroundColor );
-      }
-      hueCircle.SetPixels( colors.ToArray() );
-
-      for ( int x = 0; x < _textureSize; x++ )
-      {
-         for ( int y = 0; y < _textureSize; y++ )
-         {
-            var dx = x - middle.x;
-            var dy = y - middle.y;
-            var distanceFromCenter = Mathf.Sqrt( Mathf.Pow( dx, 2 ) + Mathf.Pow( dy, 2 ) );
-            if ( distanceFromCenter >= circleStartDistance && distanceFromCenter <= circleEndDistance )
-            {
-               var theta = Mathf.Atan2( dy, dx );
-
-               var hue = ( theta + Mathf.PI ) / ( 2 * Mathf.PI );
-               var sat = 1f;
-               var val = 1f;
-               var color = Color.HSVToRGB( hue, sat, val );
-
-               hueCircle.SetPixel( x, y, color );
-            }
-         }
-      }
-
-      var boxSize = _boxSizePercent * _textureSize;
-      var boxStart = Convert.ToInt16( middle.x - boxSize / 2f );
-      for ( int x = boxStart; x < boxStart + boxSize + 1; x++ )
-      {
-         for ( int y = boxStart; y < boxStart + boxSize + 1; y++ )
-         {
-            var theta = Mathf.PI / 2f;
-            var hue = ( theta + Mathf.PI ) / ( 2 * Mathf.PI );
-            var sat = ( x - boxStart ) / ( boxSize + 1 );
-            var val = ( y - boxStart ) / ( boxSize + 1 );
-            var color = Color.HSVToRGB( hue, sat, val );
-
-            hueCircle.SetPixel( x, y, color );
-         }
-      }
-
-      hueCircle.Apply();
-
-      Image.sprite = Sprite.Create( hueCircle, new Rect( Image.sprite.rect.position, new Vector2( hueCircle.width, hueCircle.height ) ), Image.sprite.pivot );
+      FillBackground( BackgroundColor );
+      DrawHueCircle();
+      DrawSatValBox();
 
       MoveHueSelector( Vector2.up );
       MoveSatValSelector( Vector2.zero, new Rect( 0, 0, 0, 0 ) );
@@ -135,6 +85,79 @@ public class ColorPicker : MonoBehaviour
          _dragSatValStarted = false;
          _dragOtherStarted = false;
       }
+   }
+
+   private void FillBackground( Color color )
+   {
+      var texture = new Texture2D( _textureSize, _textureSize );
+
+      var colors = new List<Color>( _textureSize * _textureSize );
+      for ( int i = 0; i < colors.Capacity; i++ )
+      {
+         colors.Add( BackgroundColor );
+      }
+      texture.SetPixels( colors.ToArray() );
+
+      texture.Apply();
+      Image.sprite = Sprite.Create( texture, new Rect( Image.sprite.rect.position, new Vector2( texture.width, texture.height ) ), Image.sprite.pivot );
+   }
+
+   private void DrawHueCircle()
+   {
+      var texture = new Texture2D( Image.sprite.texture.width, Image.sprite.texture.height );
+      texture.SetPixels( Image.sprite.texture.GetPixels() );
+
+      var circleStartDistance = _lowerCirclePercent * _textureSize / 2f;
+      var circleEndDistance = _upperCirclePercent * _textureSize / 2f;
+
+      for ( int x = 0; x < _textureSize; x++ )
+      {
+         for ( int y = 0; y < _textureSize; y++ )
+         {
+            var dx = x - _middle.x;
+            var dy = y - _middle.y;
+            var distanceFromCenter = Mathf.Sqrt( Mathf.Pow( dx, 2 ) + Mathf.Pow( dy, 2 ) );
+            if ( distanceFromCenter >= circleStartDistance && distanceFromCenter <= circleEndDistance )
+            {
+               var theta = Mathf.Atan2( dy, dx );
+
+               var hue = ( theta + Mathf.PI ) / ( 2 * Mathf.PI );
+               var sat = 1f;
+               var val = 1f;
+               var color = Color.HSVToRGB( hue, sat, val );
+
+               texture.SetPixel( x, y, color );
+            }
+         }
+      }
+
+      texture.Apply();
+      Image.sprite = Sprite.Create( texture, new Rect( Image.sprite.rect.position, new Vector2( texture.width, texture.height ) ), Image.sprite.pivot );
+   }
+
+   private void DrawSatValBox()
+   {
+      var texture = new Texture2D( Image.sprite.texture.width, Image.sprite.texture.height );
+      texture.SetPixels( Image.sprite.texture.GetPixels() );
+
+      var boxSize = _boxSizePercent * _textureSize;
+      var boxStart = Convert.ToInt16( _middle.x - boxSize / 2f );
+      for ( int x = boxStart; x < boxStart + boxSize + 1; x++ )
+      {
+         for ( int y = boxStart; y < boxStart + boxSize + 1; y++ )
+         {
+            var theta = Mathf.PI / 2f;
+            var hue = ( theta + Mathf.PI ) / ( 2 * Mathf.PI );
+            var sat = ( x - boxStart ) / ( boxSize + 1 );
+            var val = ( y - boxStart ) / ( boxSize + 1 );
+            var color = Color.HSVToRGB( hue, sat, val );
+
+            texture.SetPixel( x, y, color );
+         }
+      }
+
+      texture.Apply();
+      Image.sprite = Sprite.Create( texture, new Rect( Image.sprite.rect.position, new Vector2( texture.width, texture.height ) ), Image.sprite.pivot );
    }
 
    private void MoveHueSelector( Vector2 localCursor )
