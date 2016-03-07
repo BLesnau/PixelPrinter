@@ -53,7 +53,6 @@ public class ColorPicker : MonoBehaviour
 
             var dx = localCursor.x;
             var dy = localCursor.y;
-            var theta = Mathf.Atan2( dy, dx );
 
             if ( !_dragSatValStarted )
             {
