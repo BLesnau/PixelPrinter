@@ -176,7 +176,7 @@ public class ColorPicker : MonoBehaviour
 
       HueSelector.transform.position = Image.transform.position + new Vector3( selectorPos.x, selectorPos.y, 0 );
 
-      _hueTheta = Mathf.Atan2( selectorPos.x, selectorPos.y );
+      _hueTheta = Mathf.Atan2( selectorPos.y, selectorPos.x );
    }
 
    private void MoveSatValSelector( Vector2 localCursor, Rect boxRect )
