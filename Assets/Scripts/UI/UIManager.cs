@@ -17,10 +17,12 @@ public class UIManager : MonoBehaviour
    }
 
    public enum Tools { Add, Remove, Change }
-   public enum Color { Color1, Color2, Color3, Color4, Color5, }
+   public enum ColorSelect { Color1, Color2, Color3, Color4, Color5 }
 
    public Tools SelectedTool = Tools.Add;
-   public Color SelectedColor = Color.Color1;
+   public ColorSelect SelectedColor = ColorSelect.Color1;
+
+   private Color[] Colors = { Color.white, Color.red, Color.green, Color.blue, Color.black };
 
    void Start()
    {
@@ -59,31 +61,31 @@ public class UIManager : MonoBehaviour
          }
          case Buttons.Color1:
          {
-            SelectedColor = Color.Color1;
+            SelectedColor = ColorSelect.Color1;
             colorClicked = true;
             break;
          }
          case Buttons.Color2:
          {
-            SelectedColor = Color.Color2;
+            SelectedColor = ColorSelect.Color2;
             colorClicked = true;
             break;
          }
          case Buttons.Color3:
          {
-            SelectedColor = Color.Color3;
+            SelectedColor = ColorSelect.Color3;
             colorClicked = true;
             break;
          }
          case Buttons.Color4:
          {
-            SelectedColor = Color.Color4;
+            SelectedColor = ColorSelect.Color4;
             colorClicked = true;
             break;
          }
          case Buttons.Color5:
          {
-            SelectedColor = Color.Color5;
+            SelectedColor = ColorSelect.Color5;
             colorClicked = true;
             break;
          }
