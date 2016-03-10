@@ -5,15 +5,24 @@ public class UIManager : MonoBehaviour
 {
    public GameObject ToolSelectBackground;
    public GameObject ColorSelectBackground;
+   public ColorPicker ColorPicker;
 
-   public enum Buttons { Add, Remove, Change, Color1, Color2, Color3, Color4, Color5 }
+   public enum Buttons
+   {
+      Add, Remove, Change,
+      Color1, Color2, Color3, Color4, Color5,
+      ColorSelect1, ColorSelect2, ColorSelect3, ColorSelect4, ColorSelect5
+   }
+
    public enum Tools { Add, Remove, Change }
+   public enum Color { Color1, Color2, Color3, Color4, Color5, }
 
-   public Tools SelectedTool;
+   public Tools SelectedTool = Tools.Add;
+   public Color SelectedColor = Color.Color1;
 
    void Start()
    {
-      SelectedTool = Tools.Add;
+      ColorPicker.Hide();
    }
 
    void Update()

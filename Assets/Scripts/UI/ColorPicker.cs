@@ -9,6 +9,7 @@ public class ColorPicker : MonoBehaviour
    public Color BackgroundColor = Color.white;
    public Image HueSelector;
    public Image SaturationValueSelector;
+   public CanvasGroup CanvasGroup;
 
    private static float _upperCirclePercent = .95f;
    private static float _lowerCirclePercent = .60f;
@@ -87,6 +88,24 @@ public class ColorPicker : MonoBehaviour
          _dragSatValStarted = false;
          _dragOtherStarted = false;
       }
+   }
+
+   public void Show()
+   {
+      ToggleVisibility( true );
+   }
+
+   public void Hide()
+   {
+      ToggleVisibility( false );
+   }
+
+   private void ToggleVisibility( bool isVisible )
+   {
+      this.enabled = isVisible;
+      CanvasGroup.alpha = isVisible ? 1 : 0;
+      CanvasGroup.blocksRaycasts = isVisible;
+      CanvasGroup.interactable = isVisible;
    }
 
    private void FillBackground( Color color )
