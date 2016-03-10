@@ -150,4 +150,11 @@ public class UIManager : MonoBehaviour
    {
       return Colors[Convert.ToInt16( SelectedColor )];
    }
+
+   public void SetSelectedColor( Color color )
+   {
+      var colorIndex = Convert.ToInt16( SelectedColor );
+      Colors[colorIndex] = color;
+      ColorButtons[colorIndex].SetColor( color );
+   }
 }

@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class ColorPicker : MonoBehaviour
 {
+   public bool stop = false;
+   public UIManager UIManager;
    public Image Image;
    public Color BackgroundColor = Color.white;
    public Image HueSelector;
@@ -31,6 +33,7 @@ public class ColorPicker : MonoBehaviour
    {
       MoveHueSelector( Vector2.up );
       MoveSatValSelector( Vector2.zero, new Rect( 0, 0, 0, 0 ) );
+      UpdateSelectedColor();
 
       FillBackground( BackgroundColor );
       DrawHueCircle();
@@ -88,6 +91,8 @@ public class ColorPicker : MonoBehaviour
          _dragSatValStarted = false;
          _dragOtherStarted = false;
       }
+
+      UpdateSelectedColor();
    }
 
    public void Show()
@@ -209,5 +214,26 @@ public class ColorPicker : MonoBehaviour
       selectorPos.Scale( Image.transform.lossyScale );
 
       SaturationValueSelector.transform.position = Image.transform.position + selectorPos;
+   }
+
+   private void UpdateSelectedColor()
+   {
+      var boxSize = _boxSizePercent * Image.rectTransform.rect.width;
+      var boxSizeDim = new Vector2( boxSize, boxSize );
+      boxSizeDim.Scale( Image.rectTransform.lossyScale );
+
+      var boxStart = Convert.ToInt16( -boxSize / 2f );
+      var boxStartPosLocal = new Vector3( boxStart, boxStart );
+      boxStartPosLocal.Scale( Image.rectTransform.lossyScale );
+      var boxStartPos = Image.rectTransform.position + boxStartPosLocal;
+
+      var satValPos = SaturationValueSelector.transform.position - boxStartPos;
+
+      var sat = satValPos.x / boxSizeDim.x;
+      var val = satValPos.y / boxSizeDim.y;
+      var hue = ( _hueTheta + Mathf.PI ) / ( 2 * Mathf.PI );
+      var color = Color.HSVToRGB( hue, sat, val );
+
+      UIManager.SetSelectedColor( color );
    }
 }
