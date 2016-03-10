@@ -145,4 +145,9 @@ public class UIManager : MonoBehaviour
          ColorPicker.Show();
       }
    }
+
+   public Color GetSelectedColor()
+   {
+      return Colors[Convert.ToInt16( SelectedColor )];
+   }
 }

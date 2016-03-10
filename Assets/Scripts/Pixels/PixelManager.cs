@@ -232,7 +232,7 @@ public class PixelManager : MonoBehaviour
          {
             if ( UIManager.SelectedTool == UIManager.Tools.Add )
             {
-               selectedPixel.Color = new Color( Random.value, Random.value, Random.value, 1 );
+               selectedPixel.Color = UIManager.GetSelectedColor();
                _placeablePixels.Remove( selectedPixel );
             }
             else if ( UIManager.SelectedTool == UIManager.Tools.Remove )
@@ -241,7 +241,7 @@ public class PixelManager : MonoBehaviour
             }
             else if ( UIManager.SelectedTool == UIManager.Tools.Change )
             {
-               selectedPixel.Color = new Color( Random.value, Random.value, Random.value, 1 );
+               selectedPixel.Color = UIManager.GetSelectedColor();
             }
 
             DetectPlaceablePixels();
