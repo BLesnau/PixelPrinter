@@ -100,6 +100,11 @@ public class ColorPicker : MonoBehaviour
       ToggleVisibility( false );
    }
 
+   public bool IsVisible()
+   {
+      return this.enabled;
+   }
+
    private void ToggleVisibility( bool isVisible )
    {
       this.enabled = isVisible;
