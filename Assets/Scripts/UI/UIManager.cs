@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 public class UIManager : MonoBehaviour
@@ -7,6 +8,7 @@ public class UIManager : MonoBehaviour
    public GameObject ToolSelectBackground;
    public GameObject ColorSelectBackground;
    public ColorPicker ColorPicker;
+   public ColorButton[] ColorButtons;
 
    public enum Buttons
    {
@@ -22,11 +24,16 @@ public class UIManager : MonoBehaviour
    public Tools SelectedTool = Tools.Add;
    public ColorSelect SelectedColor = ColorSelect.Color1;
 
-   private Color[] Colors = { Color.white, Color.red, Color.green, Color.blue, Color.black };
+   private Color[] Colors = { Color.white, Color.red, new Color( .13f, .69f, .3f ), new Color( 0, .64f, .91f ), Color.black };
 
    void Start()
    {
       ColorPicker.Hide();
+
+      for ( int i = 0; i < ColorButtons.Count(); i++ )
+      {
+         ColorButtons[i].SetColor( Colors[i] );
+      }
    }
 
    void Update()
