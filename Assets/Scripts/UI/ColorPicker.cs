@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions.Comparers;
 using UnityEngine.UI;
 
 public class ColorPicker : MonoBehaviour
@@ -17,7 +18,7 @@ public class ColorPicker : MonoBehaviour
    private static float _lowerCirclePercent = .60f;
    private static float _boxSizePercent = .40f;
    private static int _textureSize = 500;
-   private static Vector2 _middle = new Vector2( ( _textureSize - 1 ) / 2f, ( _textureSize - 1 ) / 2f );
+   private static Vector2 _middle = new Vector2( ( _textureSize - 1 )/2f, ( _textureSize - 1 )/2f );
 
    private bool _dragHueStarted = false;
    private bool _dragSatValStarted = false;
@@ -25,11 +26,13 @@ public class ColorPicker : MonoBehaviour
 
    private float _hueTheta = 0;
 
-   private readonly ToggleEvent _pointerDown = new ToggleEvent( MouseToggleEvent.LeftDown, TouchToggleEvent.OneFingerDown );
+   private readonly ToggleEvent _pointerDown = new ToggleEvent( MouseToggleEvent.LeftDown,
+      TouchToggleEvent.OneFingerDown );
+
    private readonly ValueEvent _pointerPosX = new ValueEvent( MouseValueEvent.XPos, TouchValueEvent.OneFingerXPos );
    private readonly ValueEvent _pointerPosY = new ValueEvent( MouseValueEvent.YPos, TouchValueEvent.OneFingerYPos );
 
-   void Start()
+   private void Start()
    {
       MoveHueSelector( Vector2.up );
       MoveSatValSelector( Vector2.zero, new Rect( 0, 0, 0, 0 ) );
@@ -38,9 +41,11 @@ public class ColorPicker : MonoBehaviour
       FillBackground( BackgroundColor );
       DrawHueCircle();
       DrawSatValBox();
+
+      Hide();
    }
 
-   void Update()
+   private void Update()
    {
       if ( _pointerDown.IsActive() )
       {
@@ -61,7 +66,8 @@ public class ColorPicker : MonoBehaviour
             if ( !_dragSatValStarted )
             {
                var distanceFromCenter = Mathf.Sqrt( Mathf.Pow( dx, 2 ) + Mathf.Pow( dy, 2 ) );
-               if ( _dragHueStarted || ( distanceFromCenter >= circleStartDistance && distanceFromCenter <= circleEndDistance ) )
+               if ( _dragHueStarted ||
+                    ( distanceFromCenter >= circleStartDistance && distanceFromCenter <= circleEndDistance ) )
                {
                   _dragHueStarted = true;
                   MoveHueSelector( localCursor );
@@ -74,7 +80,9 @@ public class ColorPicker : MonoBehaviour
                var boxSize = _boxSizePercent * Image.rectTransform.rect.width;
                var boxStart = Convert.ToInt16( -boxSize / 2f );
                var boxRect = new Rect( boxStart, boxStart, boxSize, boxSize );
-               if ( _dragSatValStarted || ( ( dx >= boxRect.xMin ) && ( dx <= boxRect.xMax ) && ( dy >= boxRect.yMin ) && ( dy <= boxRect.yMax ) ) )
+               if ( _dragSatValStarted ||
+                    ( ( dx >= boxRect.xMin ) && ( dx <= boxRect.xMax ) && ( dy >= boxRect.yMin ) &&
+                      ( dy <= boxRect.yMax ) ) )
                {
                   _dragSatValStarted = true;
 
@@ -95,9 +103,36 @@ public class ColorPicker : MonoBehaviour
       UpdateSelectedColor();
    }
 
-   public void Show()
+   public void Show( Color color )
    {
       ToggleVisibility( true );
+      SetColor( color );
+   }
+
+   public void SetColor( Color color )
+   {
+      float hue, sat, val;
+      Color.RGBToHSV( color, out hue, out sat, out val );
+
+      var boxSize = _boxSizePercent * Image.rectTransform.rect.width;
+      var boxSizeDim = new Vector2( boxSize, boxSize );
+      boxSizeDim.Scale( Image.rectTransform.lossyScale );
+
+      var boxStart = Convert.ToInt16( -boxSize / 2f );
+      var boxStartPosLocal = new Vector3( boxStart, boxStart );
+      boxStartPosLocal.Scale( Image.rectTransform.lossyScale );
+      var boxStartPos = Image.rectTransform.position + boxStartPosLocal;
+
+      var localSatValPos = new Vector3( boxSizeDim.x * sat, boxSizeDim.y * val );
+      var satValPos = localSatValPos + boxStartPos;
+
+      var hueTheta = ( hue * ( 2 * Mathf.PI ) ) - Mathf.PI;
+      MoveHueSelector( new Vector2( Mathf.Cos( hueTheta ), Mathf.Sin( hueTheta ) ) );
+
+      var boxRect = new Rect( boxStart, boxStart, boxSize, boxSize );
+      MoveSatValSelector( satValPos, boxRect );
+
+      DrawSatValBox();
    }
 
    public void Hide()

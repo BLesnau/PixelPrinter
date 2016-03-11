@@ -28,8 +28,6 @@ public class UIManager : MonoBehaviour
 
    void Start()
    {
-      ColorPicker.Hide();
-
       for ( int i = 0; i < ColorButtons.Count(); i++ )
       {
          ColorButtons[i].SetColor( Colors[i] );
@@ -44,7 +42,7 @@ public class UIManager : MonoBehaviour
    {
       var toolClicked = false;
       var colorClicked = false;
-      var colorSelectClicked = false;
+      var colorSelectClickedIndex = -1;
 
       switch ( button )
       {
@@ -98,27 +96,32 @@ public class UIManager : MonoBehaviour
          }
          case Buttons.ColorSelect1:
          {
-            colorSelectClicked = true;
+            SelectedColor = ColorSelect.Color1;
+            colorSelectClickedIndex = 0;
             break;
          }
          case Buttons.ColorSelect2:
          {
-            colorSelectClicked = true;
+            SelectedColor = ColorSelect.Color2;
+            colorSelectClickedIndex = 1;
             break;
          }
          case Buttons.ColorSelect3:
          {
-            colorSelectClicked = true;
+            SelectedColor = ColorSelect.Color3;
+            colorSelectClickedIndex = 2;
             break;
          }
          case Buttons.ColorSelect4:
          {
-            colorSelectClicked = true;
+            SelectedColor = ColorSelect.Color4;
+            colorSelectClickedIndex = 3;
             break;
          }
          case Buttons.ColorSelect5:
          {
-            colorSelectClicked = true;
+            SelectedColor = ColorSelect.Color5;
+            colorSelectClickedIndex = 4;
             break;
          }
          case Buttons.Close:
@@ -138,11 +141,16 @@ public class UIManager : MonoBehaviour
       {
          var args = new Hashtable() { { "position", trans.position }, { "time", 1 } };
          iTween.MoveTo( ColorSelectBackground, args );
+
+         ColorPicker.SetColor( GetSelectedColor() );
       }
 
-      if ( colorSelectClicked && !ColorPicker.IsVisible() )
+      if ( colorSelectClickedIndex >= 0 )
       {
-         ColorPicker.Show();
+         var args = new Hashtable() { { "position", ColorButtons[colorSelectClickedIndex].transform.position }, { "time", 1 } };
+         iTween.MoveTo( ColorSelectBackground, args );
+
+         ColorPicker.Show( GetSelectedColor() );
       }
    }
 
