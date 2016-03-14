@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Assertions.Comparers;
 using UnityEngine.UI;
 
 public class ColorPicker : MonoBehaviour
 {
-   public bool stop = false;
+   public GameObject[] TestObjects;
+
    public UIManager UIManager;
    public Image Image;
    public Color BackgroundColor = Color.white;
@@ -18,7 +18,7 @@ public class ColorPicker : MonoBehaviour
    private static float _lowerCirclePercent = .60f;
    private static float _boxSizePercent = .40f;
    private static int _textureSize = 500;
-   private static Vector2 _middle = new Vector2( ( _textureSize - 1 )/2f, ( _textureSize - 1 )/2f );
+   private static Vector2 _middle = new Vector2( ( _textureSize - 1 ) / 2f, ( _textureSize - 1 ) / 2f );
 
    private bool _dragHueStarted = false;
    private bool _dragSatValStarted = false;
@@ -111,6 +111,8 @@ public class ColorPicker : MonoBehaviour
 
    public void SetColor( Color color )
    {
+      // iTween.ValueTo(  );
+
       float hue, sat, val;
       Color.RGBToHSV( color, out hue, out sat, out val );
 
@@ -127,7 +129,7 @@ public class ColorPicker : MonoBehaviour
       var satValPos = localSatValPos + boxStartPos;
 
       var hueTheta = ( hue * ( 2 * Mathf.PI ) ) - Mathf.PI;
-      MoveHueSelector( new Vector2( Mathf.Cos( hueTheta ), Mathf.Sin( hueTheta ) ) );
+      MoveHueSelector( new Vector2( Mathf.Cos( hueTheta ), Mathf.Sin( hueTheta ) ), true );
 
       var boxRect = new Rect( boxStart, boxStart, boxSize, boxSize );
       MoveSatValSelector( satValPos, boxRect );
@@ -226,7 +228,7 @@ public class ColorPicker : MonoBehaviour
       texture.Apply();
    }
 
-   private void MoveHueSelector( Vector2 localCursor )
+   private void MoveHueSelector( Vector2 localCursor, bool animate = false )
    {
       var selectorPosPercent = _lowerCirclePercent + ( ( _upperCirclePercent - _lowerCirclePercent ) / 2f );
       var selectorDistance = ( selectorPosPercent * Image.rectTransform.rect.width ) / 2f;
@@ -234,7 +236,126 @@ public class ColorPicker : MonoBehaviour
       var selectorPos = MathHelper.FindPoint( Vector2.zero, localCursor, selectorDistance );
       selectorPos.Scale( Image.transform.lossyScale );
 
-      HueSelector.transform.position = Image.transform.position + new Vector3( selectorPos.x, selectorPos.y, 0 );
+      if ( animate )
+      {
+         var path = new List<Vector3>();
+         path.Add( HueSelector.transform.position );
+
+         var pathPoints = new List<Vector2>()
+         {
+            MathHelper.FindPoint( Vector2.zero, new Vector2( 1, 1 ), selectorDistance ),
+            MathHelper.FindPoint( Vector2.zero, new Vector2( 1, 0 ), selectorDistance ),
+            MathHelper.FindPoint( Vector2.zero, new Vector2( 1, -1 ), selectorDistance ),
+            MathHelper.FindPoint( Vector2.zero, new Vector2( 0, -1 ), selectorDistance ),
+            MathHelper.FindPoint( Vector2.zero, new Vector2( -1, -1 ), selectorDistance ),
+            MathHelper.FindPoint( Vector2.zero, new Vector2( -1, 0 ), selectorDistance ),
+            MathHelper.FindPoint( Vector2.zero, new Vector2( -1, 1 ), selectorDistance ),
+            MathHelper.FindPoint( Vector2.zero, new Vector2( 0, 1 ), selectorDistance )
+         };
+         for ( var i = 0; i < pathPoints.Count; i++ )
+         {
+            var p = pathPoints[i];
+            p.Scale( Image.transform.lossyScale );
+            p = Image.transform.position + new Vector3( p.x, p.y, 0 );
+            pathPoints[i] = p;
+         }
+
+         var currentIndex = 0;
+         var currentRelativePos = HueSelector.transform.position - Image.transform.position;
+         var currentTheta = Mathf.Atan2( currentRelativePos.y, currentRelativePos.x );
+         currentTheta = MathHelper.GetPositiveTheta( currentTheta );
+
+         if ( currentTheta >= Mathf.PI * .25f && currentTheta < Mathf.PI * .5f )
+         {
+            currentIndex = 0;
+         }
+         if ( currentTheta >= 0 && currentTheta < Mathf.PI * .25f )
+         {
+            currentIndex = 1;
+         }
+         else if ( currentTheta >= Mathf.PI * 1.75f && currentTheta < Mathf.PI * 2f )
+         {
+            currentIndex = 2;
+         }
+         else if ( currentTheta >= Mathf.PI * 1.5f && currentTheta < Mathf.PI * 1.75f )
+         {
+            currentIndex = 3;
+         }
+         else if ( currentTheta >= Mathf.PI * 1.25 && currentTheta < Mathf.PI * 1.5f )
+         {
+            currentIndex = 4;
+         }
+         else if ( currentTheta >= Mathf.PI && currentTheta < Mathf.PI * 1.25f )
+         {
+            currentIndex = 5;
+         }
+         else if ( currentTheta >= Mathf.PI * .75f && currentTheta < Mathf.PI )
+         {
+            currentIndex = 6;
+         }
+         else if ( currentTheta >= Mathf.PI * .5f && currentTheta < Mathf.PI * .75f )
+         {
+            currentIndex = 7;
+         }
+
+         for ( var i = currentIndex; i < pathPoints.Count; i++ )
+         {
+            path.Add( pathPoints[i] );
+         }
+
+         currentTheta = Mathf.Atan2( selectorPos.y, selectorPos.x );
+         currentTheta = MathHelper.GetPositiveTheta( currentTheta );
+         var newPos = Image.transform.position + new Vector3( selectorPos.x, selectorPos.y, 0 );
+
+         if ( currentTheta >= Mathf.PI * .25f && currentTheta < Mathf.PI * .5f )
+         {
+            currentIndex = 0;
+         }
+         if ( currentTheta >= 0 && currentTheta < Mathf.PI * .25f )
+         {
+            currentIndex = 1;
+         }
+         else if ( currentTheta >= Mathf.PI * 1.75f && currentTheta < Mathf.PI * 2f )
+         {
+            currentIndex = 2;
+         }
+         else if ( currentTheta >= Mathf.PI * 1.5f && currentTheta < Mathf.PI * 1.75f )
+         {
+            currentIndex = 3;
+         }
+         else if ( currentTheta >= Mathf.PI * 1.25 && currentTheta < Mathf.PI * 1.5f )
+         {
+            currentIndex = 4;
+         }
+         else if ( currentTheta >= Mathf.PI && currentTheta < Mathf.PI * 1.25f )
+         {
+            currentIndex = 5;
+         }
+         else if ( currentTheta >= Mathf.PI * .75f && currentTheta < Mathf.PI )
+         {
+            currentIndex = 6;
+         }
+         else if ( currentTheta >= Mathf.PI * .5f && currentTheta < Mathf.PI * .75f )
+         {
+            currentIndex = 7;
+         }
+
+         if ( currentIndex > 0 )
+         {
+            for ( var i = 0; i < currentIndex; i++ )
+            {
+               path.Add( pathPoints[i] );
+            }
+         }
+
+         path.Add( newPos );
+
+         iTween.MoveTo( HueSelector.gameObject, iTween.Hash( "path", path.ToArray(), "time", 3, /*"easetype", iTween.EaseType.linear,*/ "looptype", iTween.LoopType.none, "movetopath", true ) );
+      }
+      else
+      {
+         HueSelector.transform.position = Image.transform.position + new Vector3( selectorPos.x, selectorPos.y, 0 );
+      }
 
       _hueTheta = Mathf.Atan2( selectorPos.y, selectorPos.x );
    }

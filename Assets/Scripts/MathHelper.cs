@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Xml.Schema;
+using UnityEngine;
 
 public static class MathHelper
 {
@@ -8,5 +9,10 @@ public static class MathHelper
       mid.Normalize();
       mid = mid * dist;
       return mid;
+   }
+
+   public static float GetPositiveTheta( float currentTheta )
+   {
+      return currentTheta < 0 ? Mathf.PI * 2 + currentTheta : currentTheta;
    }
 }
