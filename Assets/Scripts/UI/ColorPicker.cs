@@ -112,23 +112,14 @@ public class ColorPicker : MonoBehaviour
       float hue, sat, val;
       Color.RGBToHSV( color, out hue, out sat, out val );
 
-      var boxSize = _boxSizePercent * Image.rectTransform.rect.width;
-      var boxSizeDim = new Vector2( boxSize, boxSize );
-      boxSizeDim.Scale( Image.rectTransform.lossyScale );
-
-      var boxStart = Convert.ToInt16( -boxSize / 2f );
-      var boxStartPosLocal = new Vector3( boxStart, boxStart );
-      boxStartPosLocal.Scale( Image.rectTransform.lossyScale );
-      var boxStartPos = Image.rectTransform.position + boxStartPosLocal;
-
-      var localSatValPos = new Vector3( boxSizeDim.x * sat, boxSizeDim.y * val );
-      var satValPos = localSatValPos + boxStartPos;
-
       var hueTheta = ( hue * ( 2 * Mathf.PI ) ) - Mathf.PI;
       MoveHueSelector( new Vector2( Mathf.Cos( hueTheta ), Mathf.Sin( hueTheta ) ), true );
 
+      var boxSize = _boxSizePercent * Image.rectTransform.rect.width;
+      var boxStart = Convert.ToInt16( -boxSize / 2f );
+      var satValPos = new Vector3( boxStart + boxSize * sat, boxStart + boxSize * val );
       var boxRect = new Rect( boxStart, boxStart, boxSize, boxSize );
-      MoveSatValSelector( satValPos, boxRect );
+      MoveSatValSelector( satValPos, boxRect, true );
 
       DrawSatValBox();
    }
@@ -226,7 +217,7 @@ public class ColorPicker : MonoBehaviour
 
    private void MoveHueSelector( Vector2 localCursor, bool animate = false )
    {
-      iTween.StopByName("HueMove");
+      iTween.StopByName( "HueMove" );
 
       var selectorPosPercent = _lowerCirclePercent + ( ( _upperCirclePercent - _lowerCirclePercent ) / 2f );
       var selectorDistance = ( selectorPosPercent * Image.rectTransform.rect.width ) / 2f;
@@ -262,12 +253,12 @@ public class ColorPicker : MonoBehaviour
             {
                currentTheta = newTheta;
             }
-         } 
+         }
 
          var newPos = Image.transform.position + new Vector3( selectorPos.x, selectorPos.y, 0 );
          path.Add( newPos );
 
-         iTween.MoveTo( HueSelector.gameObject, iTween.Hash("name", "HueMove", "path", path.ToArray(), "time", 2, /*"easetype", iTween.EaseType.linear,*/ "looptype", iTween.LoopType.none, "movetopath", true ) );
+         iTween.MoveTo( HueSelector.gameObject, iTween.Hash( "name", "HueMove", "path", path.ToArray(), "time", 2, /*"easetype", iTween.EaseType.linear,*/ "looptype", iTween.LoopType.none, "movetopath", true ) );
       }
       else
       {
@@ -277,8 +268,10 @@ public class ColorPicker : MonoBehaviour
       _hueTheta = Mathf.Atan2( selectorPos.y, selectorPos.x );
    }
 
-   private void MoveSatValSelector( Vector2 localCursor, Rect boxRect )
+   private void MoveSatValSelector( Vector2 localCursor, Rect boxRect, bool animate = false )
    {
+      iTween.StopByName( "SatValMove" );
+
       var selectorPos = new Vector3( localCursor.x, localCursor.y, 0 );
       selectorPos.x = Mathf.Max( selectorPos.x, boxRect.xMin );
       selectorPos.x = Mathf.Min( selectorPos.x, boxRect.xMax );
@@ -286,7 +279,14 @@ public class ColorPicker : MonoBehaviour
       selectorPos.y = Mathf.Min( selectorPos.y, boxRect.yMax );
       selectorPos.Scale( Image.transform.lossyScale );
 
-      SaturationValueSelector.transform.position = Image.transform.position + selectorPos;
+      if ( animate )
+      {
+         iTween.MoveTo( SaturationValueSelector.gameObject, iTween.Hash( "name", "SatValMove", "position", Image.transform.position + selectorPos, "time", 2, /*"easetype", iTween.EaseType.linear,*/ "looptype", iTween.LoopType.none, "movetopath", true ) );
+      }
+      else
+      {
+         SaturationValueSelector.transform.position = Image.transform.position + selectorPos;
+      }
    }
 
    private void UpdateSelectedColor()
