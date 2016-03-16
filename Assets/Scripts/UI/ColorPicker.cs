@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public class ColorPicker : MonoBehaviour
 {
-   public GameObject[] TestObjects;
-
    public UIManager UIManager;
    public Image Image;
    public Color BackgroundColor = Color.white;
@@ -111,8 +109,6 @@ public class ColorPicker : MonoBehaviour
 
    public void SetColor( Color color )
    {
-      // iTween.ValueTo(  );
-
       float hue, sat, val;
       Color.RGBToHSV( color, out hue, out sat, out val );
 
@@ -230,6 +226,8 @@ public class ColorPicker : MonoBehaviour
 
    private void MoveHueSelector( Vector2 localCursor, bool animate = false )
    {
+      iTween.StopByName("HueMove");
+
       var selectorPosPercent = _lowerCirclePercent + ( ( _upperCirclePercent - _lowerCirclePercent ) / 2f );
       var selectorDistance = ( selectorPosPercent * Image.rectTransform.rect.width ) / 2f;
 
@@ -241,116 +239,35 @@ public class ColorPicker : MonoBehaviour
          var path = new List<Vector3>();
          path.Add( HueSelector.transform.position );
 
-         var pathPoints = new List<Vector2>()
-         {
-            MathHelper.FindPoint( Vector2.zero, new Vector2( 1, 1 ), selectorDistance ),
-            MathHelper.FindPoint( Vector2.zero, new Vector2( 1, 0 ), selectorDistance ),
-            MathHelper.FindPoint( Vector2.zero, new Vector2( 1, -1 ), selectorDistance ),
-            MathHelper.FindPoint( Vector2.zero, new Vector2( 0, -1 ), selectorDistance ),
-            MathHelper.FindPoint( Vector2.zero, new Vector2( -1, -1 ), selectorDistance ),
-            MathHelper.FindPoint( Vector2.zero, new Vector2( -1, 0 ), selectorDistance ),
-            MathHelper.FindPoint( Vector2.zero, new Vector2( -1, 1 ), selectorDistance ),
-            MathHelper.FindPoint( Vector2.zero, new Vector2( 0, 1 ), selectorDistance )
-         };
-         for ( var i = 0; i < pathPoints.Count; i++ )
-         {
-            var p = pathPoints[i];
-            p.Scale( Image.transform.lossyScale );
-            p = Image.transform.position + new Vector3( p.x, p.y, 0 );
-            pathPoints[i] = p;
-         }
-
-         var currentIndex = 0;
          var currentRelativePos = HueSelector.transform.position - Image.transform.position;
          var currentTheta = Mathf.Atan2( currentRelativePos.y, currentRelativePos.x );
          currentTheta = MathHelper.GetPositiveTheta( currentTheta );
+         var newTheta = Mathf.Atan2( selectorPos.y, selectorPos.x );
+         newTheta = MathHelper.GetPositiveTheta( newTheta );
 
-         if ( currentTheta >= Mathf.PI * .25f && currentTheta < Mathf.PI * .5f )
+         var thetaInc = .2f;
+         while ( currentTheta != newTheta )
          {
-            currentIndex = 0;
-         }
-         if ( currentTheta >= 0 && currentTheta < Mathf.PI * .25f )
-         {
-            currentIndex = 1;
-         }
-         else if ( currentTheta >= Mathf.PI * 1.75f && currentTheta < Mathf.PI * 2f )
-         {
-            currentIndex = 2;
-         }
-         else if ( currentTheta >= Mathf.PI * 1.5f && currentTheta < Mathf.PI * 1.75f )
-         {
-            currentIndex = 3;
-         }
-         else if ( currentTheta >= Mathf.PI * 1.25 && currentTheta < Mathf.PI * 1.5f )
-         {
-            currentIndex = 4;
-         }
-         else if ( currentTheta >= Mathf.PI && currentTheta < Mathf.PI * 1.25f )
-         {
-            currentIndex = 5;
-         }
-         else if ( currentTheta >= Mathf.PI * .75f && currentTheta < Mathf.PI )
-         {
-            currentIndex = 6;
-         }
-         else if ( currentTheta >= Mathf.PI * .5f && currentTheta < Mathf.PI * .75f )
-         {
-            currentIndex = 7;
-         }
+            var origTheta = currentTheta;
 
-         for ( var i = currentIndex; i < pathPoints.Count; i++ )
-         {
-            path.Add( pathPoints[i] );
-         }
+            var point = MathHelper.FindPoint( Vector2.zero, new Vector2( Mathf.Cos( currentTheta ), Mathf.Sin( currentTheta ) ), selectorDistance );
+            point.Scale( Image.transform.lossyScale );
+            point = Image.transform.position + new Vector3( point.x, point.y, 0 );
+            path.Add( point );
 
-         currentTheta = Mathf.Atan2( selectorPos.y, selectorPos.x );
-         currentTheta = MathHelper.GetPositiveTheta( currentTheta );
-         var newPos = Image.transform.position + new Vector3( selectorPos.x, selectorPos.y, 0 );
+            currentTheta -= thetaInc;
+            currentTheta = currentTheta >= 0 ? currentTheta : Mathf.PI * 2 - Mathf.Abs( currentTheta );
 
-         if ( currentTheta >= Mathf.PI * .25f && currentTheta < Mathf.PI * .5f )
-         {
-            currentIndex = 0;
-         }
-         if ( currentTheta >= 0 && currentTheta < Mathf.PI * .25f )
-         {
-            currentIndex = 1;
-         }
-         else if ( currentTheta >= Mathf.PI * 1.75f && currentTheta < Mathf.PI * 2f )
-         {
-            currentIndex = 2;
-         }
-         else if ( currentTheta >= Mathf.PI * 1.5f && currentTheta < Mathf.PI * 1.75f )
-         {
-            currentIndex = 3;
-         }
-         else if ( currentTheta >= Mathf.PI * 1.25 && currentTheta < Mathf.PI * 1.5f )
-         {
-            currentIndex = 4;
-         }
-         else if ( currentTheta >= Mathf.PI && currentTheta < Mathf.PI * 1.25f )
-         {
-            currentIndex = 5;
-         }
-         else if ( currentTheta >= Mathf.PI * .75f && currentTheta < Mathf.PI )
-         {
-            currentIndex = 6;
-         }
-         else if ( currentTheta >= Mathf.PI * .5f && currentTheta < Mathf.PI * .75f )
-         {
-            currentIndex = 7;
-         }
-
-         if ( currentIndex > 0 )
-         {
-            for ( var i = 0; i < currentIndex; i++ )
+            if ( origTheta >= newTheta && currentTheta <= newTheta )
             {
-               path.Add( pathPoints[i] );
+               currentTheta = newTheta;
             }
-         }
+         } 
 
+         var newPos = Image.transform.position + new Vector3( selectorPos.x, selectorPos.y, 0 );
          path.Add( newPos );
 
-         iTween.MoveTo( HueSelector.gameObject, iTween.Hash( "path", path.ToArray(), "time", 3, /*"easetype", iTween.EaseType.linear,*/ "looptype", iTween.LoopType.none, "movetopath", true ) );
+         iTween.MoveTo( HueSelector.gameObject, iTween.Hash("name", "HueMove", "path", path.ToArray(), "time", 2, /*"easetype", iTween.EaseType.linear,*/ "looptype", iTween.LoopType.none, "movetopath", true ) );
       }
       else
       {
