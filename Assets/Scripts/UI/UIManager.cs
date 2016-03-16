@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
@@ -9,12 +10,15 @@ public class UIManager : MonoBehaviour
    public GameObject ColorSelectBackground;
    public ColorPicker ColorPicker;
    public ColorButton[] ColorButtons;
+   public Button UndoButton;
+   public Button RedoButton;
 
    public enum Buttons
    {
       Add, Remove, Change,
       Color1, Color2, Color3, Color4, Color5,
       ColorSelect1, ColorSelect2, ColorSelect3, ColorSelect4, ColorSelect5,
+      Undo, Redo,
       Close
    }
 
@@ -36,6 +40,7 @@ public class UIManager : MonoBehaviour
 
    void Update()
    {
+      UpdateButtonStates();
    }
 
    public void ButtonClicked( Transform trans, Buttons button )
@@ -124,6 +129,16 @@ public class UIManager : MonoBehaviour
             colorSelectClickedIndex = 4;
             break;
          }
+         case Buttons.Undo:
+         {
+            PixelManager.Undo();
+            break;
+         }
+         case Buttons.Redo:
+         {
+            PixelManager.Redo();
+            break;
+         }
          case Buttons.Close:
          {
             ColorPicker.Hide();
@@ -164,5 +179,11 @@ public class UIManager : MonoBehaviour
       var colorIndex = Convert.ToInt16( SelectedColor );
       Colors[colorIndex] = color;
       ColorButtons[colorIndex].SetColor( color );
+   }
+
+   private void UpdateButtonStates()
+   {
+      UndoButton.GetComponent<Button>().interactable = PixelManager.CanUndo();
+      RedoButton.GetComponent<Button>().interactable = PixelManager.CanRedo();
    }
 }

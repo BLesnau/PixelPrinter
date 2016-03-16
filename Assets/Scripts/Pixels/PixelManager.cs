@@ -408,4 +408,22 @@ public class PixelManager : MonoBehaviour
 
       return surroundingPixels;
    }
+
+   public static void Undo()
+   {
+   }
+
+   public static void Redo()
+   {
+   }
+
+   public static bool CanUndo()
+   {
+      return true;
+   }
+
+   public static bool CanRedo()
+   {
+      return false;
+   }
 }
