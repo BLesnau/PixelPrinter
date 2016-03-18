@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class PixelManager : MonoBehaviour
 {
@@ -44,6 +43,7 @@ public class PixelManager : MonoBehaviour
 
    private PixelConfig[,,] _pixels = null;
    private List<PixelConfig> _placeablePixels = null;
+   private ActionStack _actionStack = null;
    //private int _poppedInCount = 0;
    //private TimeSpan _popInTimeElapsed = TimeSpan.Zero;
    //private AudioSource _audio;
@@ -54,6 +54,7 @@ public class PixelManager : MonoBehaviour
 
    private void Start()
    {
+      _actionStack = new ActionStack();
       //_audio = GetComponent<AudioSource>();
 
       _pixels = new PixelConfig[ColCount, RowCount, DepthCount];
@@ -409,21 +410,23 @@ public class PixelManager : MonoBehaviour
       return surroundingPixels;
    }
 
-   public static void Undo()
+   public void Undo()
    {
+      _actionStack.Undo();
    }
 
-   public static void Redo()
+   public void Redo()
    {
+      _actionStack.Redo();
    }
 
-   public static bool CanUndo()
+   public bool CanUndo()
    {
-      return true;
+      return _actionStack.CanUndo();
    }
 
-   public static bool CanRedo()
+   public bool CanRedo()
    {
-      return false;
+      return _actionStack.CanRedo();
    }
 }

@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+   public PixelManager PixelManager;
+
    public GameObject ToolSelectBackground;
    public GameObject ColorSelectBackground;
    public ColorPicker ColorPicker;
