@@ -210,18 +210,20 @@ public class PixelManager : MonoBehaviour
             {
                selectedPixel.Color = UIManager.GetSelectedColor();
                RemoveFromPlaceablePixels( selectedPixel );
-
                action = new AddAction( this, selectedPixel );
             }
             else if ( UIManager.SelectedTool == UIManager.Tools.Remove )
             {
                action = new RemoveAction( this, selectedPixel );
-
                PopOut( selectedPixel );
             }
             else if ( UIManager.SelectedTool == UIManager.Tools.Change )
             {
-               selectedPixel.Color = UIManager.GetSelectedColor();
+               if ( selectedPixel.Color != UIManager.GetSelectedColor() )
+               {
+                  action = new ChangeAction( this, selectedPixel, UIManager.GetSelectedColor() );
+                  selectedPixel.Color = UIManager.GetSelectedColor();
+               }
             }
 
             DetectPlaceablePixels();
