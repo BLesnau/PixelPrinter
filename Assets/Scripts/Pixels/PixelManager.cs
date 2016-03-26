@@ -202,12 +202,16 @@ public class PixelManager : MonoBehaviour
             catch { }
          }
 
+
          if ( selectedPixel != null )
          {
+            IEditAction action = null;
             if ( UIManager.SelectedTool == UIManager.Tools.Add )
             {
                selectedPixel.Color = UIManager.GetSelectedColor();
-               _placeablePixels.Remove( selectedPixel );
+               RemoveFromPlaceablePixels( selectedPixel );
+
+               action = new AddAction( this, selectedPixel );
             }
             else if ( UIManager.SelectedTool == UIManager.Tools.Remove )
             {
@@ -219,11 +223,16 @@ public class PixelManager : MonoBehaviour
             }
 
             DetectPlaceablePixels();
+
+            if ( action != null )
+            {
+               _actionStack.AddAction( action );
+            }
          }
       }
    }
 
-   private void PopIn( PixelConfig config )
+   public void PopIn( PixelConfig config )
    {
       var tmpEuler = transform.localRotation.eulerAngles;
       var tmpPostion = transform.position;
@@ -244,7 +253,7 @@ public class PixelManager : MonoBehaviour
       transform.position = tmpPostion;
    }
 
-   private void PopOut( PixelConfig config )
+   public void PopOut( PixelConfig config )
    {
       if ( config.Prefab )
       {
@@ -256,7 +265,7 @@ public class PixelManager : MonoBehaviour
       }
    }
 
-   private void DetectPlaceablePixels()
+   public void DetectPlaceablePixels()
    {
       _placeablePixels.ForEach( PopOut );
       _placeablePixels.Clear();
@@ -381,6 +390,11 @@ public class PixelManager : MonoBehaviour
       }
 
       return surroundingPixels;
+   }
+
+   public void RemoveFromPlaceablePixels( PixelConfig pixel )
+   {
+      _placeablePixels.Remove( pixel );
    }
 
    public void Undo()
