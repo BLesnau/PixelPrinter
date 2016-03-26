@@ -4,31 +4,6 @@ using UnityEngine;
 
 public class PixelManager : MonoBehaviour
 {
-   private class PixelConfig
-   {
-      public int XIndex;
-      public int YIndex;
-      public int ZIndex;
-
-      public Vector3 Position;
-
-      private Color _color;
-      public Color Color
-      {
-         get { return _color; }
-         set
-         {
-            _color = value;
-            if ( Prefab != null )
-            {
-               Prefab.Color = value;
-            }
-         }
-      }
-
-      public Pixel Prefab;
-   }
-
    public UIManager UIManager;
 
    public Pixel PixelPrefab = null;
@@ -211,9 +186,7 @@ public class PixelManager : MonoBehaviour
                {
                   selectedPixel = sortedSurroundingPixels.First( p => _placeablePixels.Contains( p ) );
                }
-               catch
-               {
-               }
+               catch { }
             }
             else if ( UIManager.SelectedTool == UIManager.Tools.Remove || UIManager.SelectedTool == UIManager.Tools.Change )
             {
