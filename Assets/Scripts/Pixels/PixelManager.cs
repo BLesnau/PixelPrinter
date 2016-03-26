@@ -215,6 +215,8 @@ public class PixelManager : MonoBehaviour
             }
             else if ( UIManager.SelectedTool == UIManager.Tools.Remove )
             {
+               action = new RemoveAction( this, selectedPixel );
+
                PopOut( selectedPixel );
             }
             else if ( UIManager.SelectedTool == UIManager.Tools.Change )
