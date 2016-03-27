@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 public class ActionStack
 {
@@ -37,7 +38,7 @@ public class ActionStack
          return _currentAction.Next != null;
       }
 
-      return false;
+      return _actions.Any();
    }
 
    public void Undo()
@@ -48,7 +49,15 @@ public class ActionStack
 
    public void Redo()
    {
-      _currentAction = _currentAction.Next;
+      if ( _currentAction != null )
+      {
+         _currentAction = _currentAction.Next;
+      }
+      else
+      {
+         _currentAction = _actions.First;
+      }
+
       _currentAction.Value.Redo();
    }
 }
