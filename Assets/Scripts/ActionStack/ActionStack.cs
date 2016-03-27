@@ -9,55 +9,41 @@ public class ActionStack
    public ActionStack()
    {
       _actions = new LinkedList<IEditAction>();
+      _actions.AddFirst( new DummyAction() );
       _currentAction = _actions.First;
    }
 
    public void AddAction( IEditAction action )
    {
       _actions.RemoveAllAfter( _currentAction );
-
-      if ( _currentAction != null )
-      {
-         _currentAction = _actions.AddAfter( _currentAction, action );
-      }
-      else
-      {
-         _currentAction = _actions.AddFirst( action );
-      }
+      _currentAction = _actions.AddAfter( _currentAction, action );
    }
 
    public bool CanUndo()
    {
-      return _currentAction != null;
+      return !(_currentAction.Value is DummyAction);
    }
 
    public bool CanRedo()
    {
-      if ( _currentAction != null )
-      {
-         return _currentAction.Next != null;
-      }
-
-      return _actions.Any();
+      return _currentAction.Next != null;
    }
 
    public void Undo()
    {
-      _currentAction.Value.Undo();
-      _currentAction = _currentAction.Previous;
+      if ( CanUndo() )
+      {
+         _currentAction.Value.Undo();
+         _currentAction = _currentAction.Previous;
+      }
    }
 
    public void Redo()
    {
-      if ( _currentAction != null )
+      if ( CanRedo() )
       {
          _currentAction = _currentAction.Next;
+         _currentAction.Value.Redo();
       }
-      else
-      {
-         _currentAction = _actions.First;
-      }
-
-      _currentAction.Value.Redo();
    }
 }

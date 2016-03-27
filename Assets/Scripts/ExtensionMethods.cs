@@ -12,10 +12,6 @@ public static class ExtensionMethods
             list.Remove( node.Previous );
          }
       }
-      else
-      {
-         list.Clear();
-      }
    }
 
    public static void RemoveAllAfter<T>( this LinkedList<T> list, LinkedListNode<T> node )
@@ -26,10 +22,6 @@ public static class ExtensionMethods
          {
             list.Remove( node.Next );
          }
-      }
-      else
-      {
-         list.Clear();
       }
    }
 }
