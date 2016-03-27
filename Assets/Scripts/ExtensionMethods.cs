@@ -5,12 +5,16 @@ public static class ExtensionMethods
 {
    public static void RemoveAllBefore<T>( this LinkedList<T> list, LinkedListNode<T> node )
    {
-      if (node != null)
+      if ( node != null )
       {
-         while (node.Previous != null)
+         while ( node.Previous != null )
          {
-            list.Remove(node.Previous);
+            list.Remove( node.Previous );
          }
+      }
+      else
+      {
+         list.Clear();
       }
    }
 
@@ -22,6 +26,10 @@ public static class ExtensionMethods
          {
             list.Remove( node.Next );
          }
+      }
+      else
+      {
+         list.Clear();
       }
    }
 }
