@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
+using NativePlugin;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -55,6 +56,21 @@ public class UIManager : MonoBehaviour
       {
          case Buttons.Add:
          {
+            var plugin = new PixelPrinterPlugin();
+            var authToken = string.Empty;
+
+#if UNITY_EDITOR
+            authToken = plugin.GetAuthToken();
+#endif
+#if UNITY_WSA && !UNITY_EDITOR
+      UnityEngine.WSA.Application.InvokeOnUIThread( async () =>
+      {
+         await plugin.GetAuthToken();
+      }, true );
+#endif
+
+            DebugHelper.Log( "Auth Token", authToken );
+
             SelectedTool = Tools.Add;
             toolClicked = true;
             break;
