@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using NativePlugin;
 using UnityEngine;
 
 public class PixelManager : MonoBehaviour
@@ -35,15 +36,15 @@ public class PixelManager : MonoBehaviour
       _pixels = new PixelConfig[ColCount, RowCount, DepthCount];
       _placeablePixels = new List<PixelConfig>();
 
-      var startZ = -1 * ( ( ( DepthCount * PixelScale ) / 2.0f ) - ( PixelScale / 2.0f ) );
-      var startX = -1 * ( ( ( ColCount * PixelScale ) / 2.0f ) - ( PixelScale / 2.0f ) );
-      var startY = -1 * ( ( ( RowCount * PixelScale ) / 2.0f ) - ( PixelScale / 2.0f ) );
+      var startZ = -1 * (((DepthCount * PixelScale) / 2.0f) - (PixelScale / 2.0f));
+      var startX = -1 * (((ColCount * PixelScale) / 2.0f) - (PixelScale / 2.0f));
+      var startY = -1 * (((RowCount * PixelScale) / 2.0f) - (PixelScale / 2.0f));
 
       if ( PixelPrefab )
       {
          for ( int y = 0; y < RowCount; y++ )
          {
-            var itemsLeft = ( ColCount ) * ( DepthCount );
+            var itemsLeft = (ColCount) * (DepthCount);
             int x = 0;
             int z = 0;
             while ( itemsLeft > 0 )
@@ -135,7 +136,7 @@ public class PixelManager : MonoBehaviour
          XIndex = x,
          YIndex = y,
          ZIndex = z,
-         Position = new Vector3( startX + ( x * PixelScale ), startY + ( y * PixelScale ), startZ + ( z * PixelScale ) ),
+         Position = new Vector3( startX + (x * PixelScale), startY + (y * PixelScale), startZ + (z * PixelScale) ),
          Color = new Color( 0, 0, 0, 0 ),
          Prefab = null
       };
@@ -145,6 +146,9 @@ public class PixelManager : MonoBehaviour
 
    private void Update()
    {
+      var plugin = new PixelPrinterPlugin();
+      DebugHelper.Log( "Plugin String", plugin.GetAuthToken() );
+
       //if ( _pixelsToPopIn.Any() )
       //{
       //   _popInTimeElapsed += TimeSpan.FromSeconds( Time.deltaTime );
