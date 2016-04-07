@@ -63,10 +63,17 @@ public class UIManager : MonoBehaviour
             authToken = plugin.GetAuthToken();
 #endif
 #if UNITY_WSA && !UNITY_EDITOR
-      UnityEngine.WSA.Application.InvokeOnUIThread( async () =>
-      {
-         await plugin.GetAuthToken();
-      }, true );
+            try
+            {
+               UnityEngine.WSA.Application.InvokeOnUIThread( async () =>
+               {
+                  await plugin.GetAuthToken();
+               }, true );
+            }
+            catch ( Exception ex )
+            {
+               DebugHelper.Log( "Exception", ex.Message );
+            }
 #endif
 
             DebugHelper.Log( "Auth Token", authToken );
