@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using NativePlugin;
 using UnityEngine;
 
 public class PixelManager : MonoBehaviour
@@ -146,9 +145,6 @@ public class PixelManager : MonoBehaviour
 
    private void Update()
    {
-      var plugin = new PixelPrinterPlugin();
-      DebugHelper.Log( "Plugin String", plugin.GetAuthToken() );
-
       //if ( _pixelsToPopIn.Any() )
       //{
       //   _popInTimeElapsed += TimeSpan.FromSeconds( Time.deltaTime );
