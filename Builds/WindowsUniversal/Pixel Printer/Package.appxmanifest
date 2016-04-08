@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp" xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10">
+  <Identity Name="NewUnityProject1" Publisher="CN=Vigilante Panda" Version="1.0.0.0" />
+  <mp:PhoneIdentity PhoneProductId="9cb87382-6334-4258-89e9-399574073642" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
+  <Properties>
+    <DisplayName>Pixel Printer</DisplayName>
+    <PublisherDisplayName>Vigilante Panda</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.scale-100.png</Logo>
+  </Properties>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.10240.0" MaxVersionTested="10.0.10240.0" />
+  </Dependencies>
+  <Resources>
+    <Resource Language="x-generate" />
+  </Resources>
+  <Applications>
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="NewUnityProject1.App">
+      <uap:VisualElements DisplayName="Pixel Printer" Square150x150Logo="Assets\Square150x150Logo.scale-200.png" Square44x44Logo="Assets\Square44x44Logo.scale-200.png" Description="New Unity Project 1" BackgroundColor="#000000">
+        <uap:DefaultTile ShortName="Pixel Printer" Wide310x150Logo="Assets\Wide310x150Logo.scale-200.png">
+        </uap:DefaultTile>
+        <uap:SplashScreen Image="Assets\SplashScreen.scale-200.png" />
+        <uap:InitialRotationPreference>
+          <uap:Rotation Preference="portrait" />
+          <uap:Rotation Preference="landscape" />
+          <uap:Rotation Preference="portraitFlipped" />
+          <uap:Rotation Preference="landscapeFlipped" />
+        </uap:InitialRotationPreference>
+      </uap:VisualElements>
+    </Application>
+  </Applications>
+  <Capabilities>
+    <Capability Name="internetClient" />
+  </Capabilities>
+</Package>
