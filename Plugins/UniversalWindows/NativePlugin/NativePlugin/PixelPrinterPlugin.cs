@@ -48,8 +48,9 @@ namespace NativePlugin
 
          var stackPanel1 = new StackPanel() { Orientation = Orientation.Vertical };
 
-         var webView = new WebView( WebViewExecutionMode.SeparateThread ) { Width = 400, Height = 300 };
+         var webView = new WebView() { Width = 400, Height = 300 };
          webView.Navigate( new Uri( "http://google.com" ) );
+         webView.Source = new Uri( "http://yahoo.com" );
 
          var stackPanel2 = new StackPanel() { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
          var button1 = new Button() { Content = "Button 1" };

@@ -59,22 +59,27 @@ public class UIManager : MonoBehaviour
             var plugin = new PixelPrinterPlugin();
             var authToken = string.Empty;
 
-#if UNITY_EDITOR
-            authToken = plugin.GetAuthToken();
-#endif
-#if UNITY_WSA && !UNITY_EDITOR
-            try
+            if ( WSAComm.LoginCallback != null )
             {
-               UnityEngine.WSA.Application.InvokeOnUIThread( async () =>
-               {
-                  await plugin.GetAuthToken();
-               }, true );
+               DebugHelper.Log( "WSA", WSAComm.LoginCallback() );
             }
-            catch ( Exception ex )
-            {
-               DebugHelper.Log( "Exception", ex.Message );
-            }
-#endif
+
+            //#if UNITY_EDITOR
+            //            authToken = plugin.GetAuthToken();
+            //#endif
+            //#if UNITY_WSA && !UNITY_EDITOR
+            //            try
+            //            {
+            //               UnityEngine.WSA.Application.InvokeOnUIThread( () =>
+            //               {
+            //                  plugin.GetAuthToken();
+            //               }, false );
+            //            }
+            //            catch ( Exception ex )
+            //            {
+            //               DebugHelper.Log( "Exception", ex.Message );
+            //            }
+            //#endif
 
             DebugHelper.Log( "Auth Token", authToken );
 
