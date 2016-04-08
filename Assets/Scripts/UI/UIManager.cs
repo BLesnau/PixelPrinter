@@ -64,22 +64,22 @@ public class UIManager : MonoBehaviour
                DebugHelper.Log( "WSA", WSAComm.LoginCallback() );
             }
 
-            //#if UNITY_EDITOR
-            //            authToken = plugin.GetAuthToken();
-            //#endif
-            //#if UNITY_WSA && !UNITY_EDITOR
-            //            try
-            //            {
-            //               UnityEngine.WSA.Application.InvokeOnUIThread( () =>
-            //               {
-            //                  plugin.GetAuthToken();
-            //               }, false );
-            //            }
-            //            catch ( Exception ex )
-            //            {
-            //               DebugHelper.Log( "Exception", ex.Message );
-            //            }
-            //#endif
+#if UNITY_EDITOR
+            authToken = plugin.GetAuthToken();
+#endif
+#if UNITY_WSA && !UNITY_EDITOR
+            try
+            {
+               UnityEngine.WSA.Application.InvokeOnUIThread( () =>
+               {
+                  plugin.GetAuthToken();
+               }, false );
+            }
+            catch ( Exception ex )
+            {
+               DebugHelper.Log( "Exception", ex.Message );
+            }
+#endif
 
             DebugHelper.Log( "Auth Token", authToken );
 
