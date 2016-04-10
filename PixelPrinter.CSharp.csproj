@@ -58,6 +58,12 @@
     <Reference Include="UnityEngine.Networking">
       <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.Networking">
+      <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>Library\UnityAssemblies\UnityEngine.UI.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEditor">
       <HintPath>Library\UnityAssemblies\UnityEditor.dll</HintPath>
     </Reference>
@@ -101,33 +107,9 @@
     <Compile Include="Assets\Scripts\WSAComm.cs" />
     <Compile Include="Assets\Scripts\heyy.cs" />
     <Compile Include="Assets\Scripts\iTween.cs" />
-    <Compile Include="Assets\WSANative\Advertising\WSANativeInterstitialAd.cs" />
-    <Compile Include="Assets\WSANative\Dialog\WSADialogCommand.cs" />
-    <Compile Include="Assets\WSANative\Dialog\WSADialogResult.cs" />
-    <Compile Include="Assets\WSANative\Dialog\WSANativeDialog.cs" />
-    <Compile Include="Assets\WSANative\Dialog\WindowsStoreDialog.cs" />
-    <Compile Include="Assets\WSANative\Example\ExampleSceneManagerController.cs" />
-    <Compile Include="Assets\WSANative\Picker\WSANativeFilePicker.cs" />
-    <Compile Include="Assets\WSANative\Picker\WSAPickerLocationId.cs" />
-    <Compile Include="Assets\WSANative\Picker\WSAPickerViewMode.cs" />
-    <Compile Include="Assets\WSANative\Picker\WSAStorageFile.cs" />
-    <Compile Include="Assets\WSANative\Popup\WSANativePopupMenu.cs" />
-    <Compile Include="Assets\WSANative\Popup\WSAPopupMenuPlacement.cs" />
-    <Compile Include="Assets\WSANative\Popup\WindowsStorePopupMenu.cs" />
-    <Compile Include="Assets\WSANative\Serialisation\WSANativeSerialisation.cs" />
-    <Compile Include="Assets\WSANative\Storage\WSANativeStorage.cs" />
-    <Compile Include="Assets\WSANative\Store\WSAFulfillmentResult.cs" />
-    <Compile Include="Assets\WSANative\Store\WSANativeStore.cs" />
-    <Compile Include="Assets\WSANative\Store\WSAProduct.cs" />
-    <Compile Include="Assets\WSANative\Store\WSAProductLicense.cs" />
-    <Compile Include="Assets\WSANative\Store\WSAPurchaseResult.cs" />
-    <Compile Include="Assets\WSANative\Store\WSAPurchaseResultStatus.cs" />
-    <Compile Include="Assets\WSANative\Store\WSAUnfulfilledConsumable.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Plugins\WSA\NativePlugin.xr.xml" />
     <None Include="Assets\Shaders\LineShader.shader" />
-    <None Include="Assets\WSANative\readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>

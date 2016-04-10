@@ -70,10 +70,10 @@ public class UIManager : MonoBehaviour
 #if UNITY_WSA && !UNITY_EDITOR
             try
             {
-               UnityEngine.WSA.Application.InvokeOnUIThread( () =>
+               UnityEngine.WSA.Application.InvokeOnUIThread( async () =>
                {
-                  plugin.GetAuthToken();
-               }, false );
+                  authToken = await plugin.GetAuthToken();
+               }, true );
             }
             catch ( Exception ex )
             {
