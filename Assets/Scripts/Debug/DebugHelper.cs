@@ -28,7 +28,7 @@ public class DebugHelper : MonoBehaviour
          return;
       }
 
-      var rect = new Rect( 5, 5, 500, 25 );
+      var rect = new Rect( 5, 5, 1500, 35 );
       foreach ( var info in _debugInfo )
       {
          GUI.Label( rect, info.Key + " = " + info.Value );
