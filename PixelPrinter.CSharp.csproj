@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>WSAPlayer:21</UnityBuildTarget>
     <UnityVersion>5.3.4f1</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion Condition=" '$(VisualStudioVersion)' != '10.0' ">4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -77,6 +75,8 @@
     <Compile Include="Assets\Scripts\ActionStack\DummyAction.cs" />
     <Compile Include="Assets\Scripts\ActionStack\IEditAction.cs" />
     <Compile Include="Assets\Scripts\ActionStack\RemoveAction.cs" />
+    <Compile Include="Assets\Scripts\Azure\AzureHelper.cs" />
+    <Compile Include="Assets\Scripts\Azure\ILoginListener.cs" />
     <Compile Include="Assets\Scripts\Camera\CameraMovement.cs" />
     <Compile Include="Assets\Scripts\Camera\MouseCameraControl.cs" />
     <Compile Include="Assets\Scripts\Camera\MouseOrbitImproved.cs" />

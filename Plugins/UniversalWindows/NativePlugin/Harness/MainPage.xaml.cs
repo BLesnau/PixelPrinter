@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.ServiceModel.Description;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -30,8 +32,17 @@ namespace Harness
 
       private async void ButtonClick( object sender, RoutedEventArgs e )
       {
-         var plugin = new PixelPrinterPlugin();
-         await plugin.GetAuthToken();
+         var authToken = await PixelPrinterPlugin.GetAuthToken();
+         if ( !string.IsNullOrWhiteSpace( authToken ) )
+         {
+            var dlg = new MessageDialog( authToken );
+            await dlg.ShowAsync();
+         }
+         else
+         {
+            var dlg = new MessageDialog( "DID NOT LOGIN" );
+            await dlg.ShowAsync();
+         }
       }
    }
 }

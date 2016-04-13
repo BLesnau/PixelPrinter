@@ -6,9 +6,9 @@ using Microsoft.WindowsAzure.MobileServices;
 
 namespace NativePlugin
 {
-   public class PixelPrinterPlugin
+   public static class PixelPrinterPlugin
    {
-      public async Task<string> GetAuthToken()
+      public static async Task<string> GetAuthToken()
       {
          try
          {

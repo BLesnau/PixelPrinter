@@ -5,7 +5,7 @@ using NativePlugin;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIManager : MonoBehaviour
+public class UIManager : MonoBehaviour, ILoginListener
 {
    public PixelManager PixelManager;
 
@@ -39,6 +39,8 @@ public class UIManager : MonoBehaviour
       {
          ColorButtons[i].SetColor( Colors[i] );
       }
+
+      AzureHelper.Login( this );
    }
 
    void Update()
@@ -56,28 +58,6 @@ public class UIManager : MonoBehaviour
       {
          case Buttons.Add:
          {
-            var plugin = new PixelPrinterPlugin();
-            var authToken = string.Empty;
-
-#if UNITY_EDITOR
-            authToken = plugin.GetAuthToken();
-            DebugHelper.Log( "Auth Token", authToken );
-#endif
-#if UNITY_WSA && !UNITY_EDITOR
-            try
-            {
-               UnityEngine.WSA.Application.InvokeOnUIThread( async () =>
-               {
-                  authToken = await plugin.GetAuthToken();
-                  DebugHelper.Log( "Auth Token", authToken );
-               }, true );
-            }
-            catch ( Exception ex )
-            {
-               DebugHelper.Log( "Exception", ex.Message );
-            }
-#endif
-
             SelectedTool = Tools.Add;
             toolClicked = true;
             break;
@@ -210,5 +190,10 @@ public class UIManager : MonoBehaviour
    {
       UndoButton.GetComponent<Button>().interactable = PixelManager.CanUndo();
       RedoButton.GetComponent<Button>().interactable = PixelManager.CanRedo();
+   }
+
+   public void LoginCompleted( bool succeeded )
+   {
+      DebugHelper.Log( "Login Status", succeeded.ToString() );
    }
 }

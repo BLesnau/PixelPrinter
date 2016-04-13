@@ -1,8 +1,8 @@
 ﻿namespace NativePlugin
 {
-    public class PixelPrinterPlugin
+    public static class PixelPrinterPlugin
     {
-      public string GetAuthToken()
+      public static string GetAuthToken()
       {
          return "Editor Auth Token";
       }
