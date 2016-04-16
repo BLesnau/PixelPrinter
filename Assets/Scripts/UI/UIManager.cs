@@ -9,12 +9,15 @@ public class UIManager : MonoBehaviour, ILoginListener
 {
    public PixelManager PixelManager;
 
+   public Image SuspendOverlay;
    public GameObject ToolSelectBackground;
    public GameObject ColorSelectBackground;
    public ColorPicker ColorPicker;
    public ColorButton[] ColorButtons;
    public Button UndoButton;
    public Button RedoButton;
+
+   private bool _splashScreenDone = false;
 
    public enum Buttons
    {
@@ -39,13 +42,20 @@ public class UIManager : MonoBehaviour, ILoginListener
       {
          ColorButtons[i].SetColor( Colors[i] );
       }
-
-      AzureHelper.Login( this );
    }
 
    void Update()
    {
       UpdateButtonStates();
+
+      if ( !Application.isShowingSplashScreen && !_splashScreenDone )
+      {
+         _splashScreenDone = true;
+
+         //var c = SuspendOverlay.color;
+         //SuspendOverlay.color = new Color( c.r, c.g, c.b, 1 );
+         AzureHelper.Login( this );
+      }
    }
 
    public void ButtonClicked( Transform trans, Buttons button )
@@ -195,5 +205,13 @@ public class UIManager : MonoBehaviour, ILoginListener
    public void LoginCompleted( bool succeeded )
    {
       DebugHelper.Log( "Login Status", succeeded.ToString() );
+      //ThreadDispatcher.Instance().Enqueue( HideSuspendOverlay() );
+   }
+
+   public IEnumerator HideSuspendOverlay()
+   {
+      var c = SuspendOverlay.color;
+      SuspendOverlay.color = new Color( c.r, c.g, c.b, 0 );
+      yield return null;
    }
 }
