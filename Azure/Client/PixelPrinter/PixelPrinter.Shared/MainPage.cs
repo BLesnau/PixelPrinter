@@ -102,6 +102,16 @@ namespace PixelPrinter
       {
          //await InitLocalStoreAsync(); // offline sync
          await RefreshTodoItems();
+
+         //try
+         //{
+         //await App.MobileService.LoginAsync( MobileServiceAuthenticationProvider.Google );
+         //}
+         //catch ( Exception ex)
+         //{
+         //   var i = 0;
+         //   i++;
+         //}
       }
 
       #region Offline sync

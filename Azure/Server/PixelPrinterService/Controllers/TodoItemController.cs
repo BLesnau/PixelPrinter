@@ -9,7 +9,7 @@ using PixelPrinterService.Models;
 
 namespace PixelPrinterService.Controllers
 {
-   [Authorize]
+   //[Authorize]
    public class TodoItemController : TableController<TodoItem>
    {
       protected override void Initialize( HttpControllerContext controllerContext )

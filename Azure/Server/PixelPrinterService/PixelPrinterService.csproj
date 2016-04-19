@@ -156,8 +156,19 @@
   <ItemGroup>
     <Compile Include="App_Start\Startup.MobileApp.cs" />
     <Compile Include="Controllers\TodoItemController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="DataObjects\TodoItem.cs" />
+    <Compile Include="DataObjects\User.cs" />
+    <Compile Include="Migrations\201604200451582_InitialCreate.cs" />
+    <Compile Include="Migrations\201604200451582_InitialCreate.Designer.cs">
+      <DependentUpon>201604200451582_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201604200455540_AddUsers.cs" />
+    <Compile Include="Migrations\201604200455540_AddUsers.Designer.cs">
+      <DependentUpon>201604200455540_AddUsers.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\PixelPrinterContext.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -178,6 +189,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\PublishProfiles\PixelPrinter - Web Deploy.pubxml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201604200451582_InitialCreate.resx">
+      <DependentUpon>201604200451582_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201604200455540_AddUsers.resx">
+      <DependentUpon>201604200455540_AddUsers.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />

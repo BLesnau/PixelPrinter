@@ -7,9 +7,12 @@
       mc:Ignorable="d">
 
    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-      <Button Click="ButtonClick"
-              Content="Click Me!"
-              HorizontalAlignment="Center"
-              VerticalAlignment="Center"></Button>
+      <StackPanel HorizontalAlignment="Center"
+                  VerticalAlignment="Center">
+         <Button Click="LoginNewClick"
+                 Content="Login New" />
+         <Button Click="LoginAgainClick"
+                 Content="Login Again" />
+      </StackPanel>
    </Grid>
 </Page>
