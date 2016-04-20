@@ -1,24 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.ServiceModel.Description;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 using Microsoft.WindowsAzure.MobileServices;
 using NativePlugin;
 using Newtonsoft.Json.Linq;
+using PixelPrinter;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -33,6 +23,7 @@ namespace Harness
       private readonly MobileServiceClient _mobileService;
       private string _authToken;
       private string _userId;
+      private string _uniqueId;
       private User _user;
 
       public MainPage()
@@ -40,7 +31,7 @@ namespace Harness
          this.InitializeComponent();
 
          _mobileService = new MobileServiceClient( PixelPrinterPlugin.GetServiceUrl( _environment ) );
-         //_mobileService.AlternateLoginHost = new Uri( PixelPrinterPlugin.GetServiceUrl( PixelPrinterPlugin.TargetEnvironment.Live ) );
+         _mobileService.AlternateLoginHost = new Uri( PixelPrinterPlugin.GetServiceUrl( PixelPrinterPlugin.TargetEnvironment.Live ) );
 
          _user = null;
       }
@@ -56,41 +47,57 @@ namespace Harness
          {
             if ( IsTokenExpired( _authToken ) )
             {
-               await Login();
+               _authToken = _userId = _uniqueId = string.Empty;
             }
          }
-         catch
-         {
-            await Login();
-         }
+         catch { }
+
+         await Login();
       }
 
       private async Task Login()
       {
          try
          {
-            var strToSplit = await PixelPrinterPlugin.GetAuthToken( _environment );
-            var splitStr = strToSplit.Split( ',' );
-            _authToken = splitStr[0];
-            _userId = splitStr[1];
-            if ( !string.IsNullOrWhiteSpace( _authToken ) )
+            if ( !string.IsNullOrWhiteSpace( _authToken ) && !string.IsNullOrWhiteSpace( _userId ) && !string.IsNullOrWhiteSpace( _uniqueId ) )
             {
-               //await _mobileService.LoginAsync( MobileServiceAuthenticationProvider.Google, GetJToken( _authToken ) );
-               //_mobileService.CurrentUser = new MobileServiceUser( _userId );
-               var users = _mobileService.GetTable<User>().WithParameters( new Dictionary<string, string>() { { "doit", "blah" } } );
-               var dlg = new MessageDialog( _authToken );
+               _mobileService.CurrentUser = new MobileServiceUser( _userId ) { MobileServiceAuthenticationToken = _authToken };
+
+               var dlg = new MessageDialog( "ALREADY SIGNED IN" );
                await dlg.ShowAsync();
             }
             else
             {
-               var dlg = new MessageDialog( "DID NOT LOGIN" );
+               var strToSplit = await PixelPrinterPlugin.GetAuthToken( _environment );
+               var splitStr = strToSplit.Split( ',' );
+               _authToken = splitStr[0];
+               _userId = splitStr[1];
+               _uniqueId = GetJToken( _authToken )["stable_sid"].ToString();
+
+               var dlg = new MessageDialog( "SIGNED IN" );
                await dlg.ShowAsync();
             }
          }
-         catch ( Exception )
+         catch { }
+
+         var dlg2 = new MessageDialog( _authToken );
+         await dlg2.ShowAsync();
+         dlg2 = new MessageDialog( _userId );
+         await dlg2.ShowAsync();
+      }
+
+      private async void GetUserClick( object sender, RoutedEventArgs e )
+      {
+         if ( !string.IsNullOrWhiteSpace( _authToken ) )
          {
-            var i = 0;
-            i++;
+            var users = await _mobileService.GetTable<User>().WithParameters( new Dictionary<string, string>() { { "id", _uniqueId } } ).ToCollectionAsync();
+            var dlg = new MessageDialog( _authToken );
+            await dlg.ShowAsync();
+         }
+         else
+         {
+            var dlg = new MessageDialog( "NOT LOGGED IN" );
+            await dlg.ShowAsync();
          }
       }
 
@@ -137,58 +144,9 @@ namespace Harness
 
       private bool IsTokenExpired( string token )
       {
-         //// Check for a signed-in user.
-         //if ( client.CurrentUser == null ||
-         //    String.IsNullOrEmpty( client.CurrentUser.MobileServiceAuthenticationToken ) )
-         //{
-         //   // Raise an exception if there is no token.
-         //   throw new InvalidOperationException(
-         //       "The client isn't signed-in or the token value isn't set." );
-         //}
-
-         //// Get just the JWT part of the token.
-         //var jwt = client.CurrentUser
-         //    .MobileServiceAuthenticationToken
-         //    .Split( new Char[] { '.' } )[1];
-
-         //var jwt = token.Split( new Char[] { '.' } )[1];
-
-         //// Undo the URL encoding.
-         //jwt = jwt.Replace( '-', '+' );
-         //jwt = jwt.Replace( '_', '/' );
-         //switch ( jwt.Length % 4 )
-         //{
-         //   case 0:
-         //   {
-         //      break;
-         //   }
-         //   case 2:
-         //   {
-         //      jwt += "==";
-         //      break;
-         //   }
-         //   case 3:
-         //   {
-         //      jwt += "=";
-
-         //      break;
-         //   }
-         //   default:
-         //   {
-         //      //throw new System.Exception(
-         //      //   "The base64url string is not valid." );
-         //      break;
-         //   }
-         //}
-
-         //// Decode the bytes from base64 and write to a JSON string.
-         //var bytes = Convert.FromBase64String( jwt );
-         //string jsonString = UTF8Encoding.UTF8.GetString( bytes, 0, bytes.Length );
-
          // Parse as JSON object and get the exp field value, 
          // which is the expiration date as a JavaScript primative date.
          var jsonObj = GetJToken( token );
-         //JObject jsonObj = JObject.Parse( jsonString );
          var exp = Convert.ToDouble( jsonObj["exp"].ToString() );
 
          // Calculate the expiration by adding the exp value (in seconds) to the 

@@ -17,7 +17,6 @@ namespace NativePlugin
          {
             case TargetEnvironment.Local:
             {
-               //return "http://desktop-or80phq/PixelPrinterService/";
                return "http://desktop-or80phq/PixelPrinterService";
             }
             case TargetEnvironment.Live:

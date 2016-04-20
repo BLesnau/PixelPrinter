@@ -27,10 +27,10 @@ namespace PixelPrinter
       // You're all set to start working with your Mobile App!
 #if DEBUG
       public static MobileServiceClient MobileService = new MobileServiceClient(
-          "https://desktop-or80phq/PixelPrinterService"
+          "http://desktop-or80phq/PixelPrinterService"
       //"http://localhost:51541/"
       )
-      /*{ AlternateLoginHost = new Uri( "https://pixelprinter.azurewebsites.net" ) }*/;
+      { AlternateLoginHost = new Uri( "https://pixelprinter.azurewebsites.net" ) };
 #else
       public static MobileServiceClient MobileService = new MobileServiceClient(
           "https://pixelprinter.azurewebsites.net"     
