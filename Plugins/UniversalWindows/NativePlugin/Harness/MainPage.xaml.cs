@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Popups;
@@ -88,16 +90,55 @@ namespace Harness
 
       private async void GetUserClick( object sender, RoutedEventArgs e )
       {
-         if ( !string.IsNullOrWhiteSpace( _authToken ) )
+         try
          {
-            var users = await _mobileService.GetTable<User>().WithParameters( new Dictionary<string, string>() { { "id", _uniqueId } } ).ToCollectionAsync();
-            var dlg = new MessageDialog( _authToken );
-            await dlg.ShowAsync();
+            if ( !string.IsNullOrWhiteSpace( _authToken ) )
+            {
+               var user = await _mobileService.GetTable<User>().ToCollectionAsync();
+               var dlg = new MessageDialog( user.First().UserName );
+               await dlg.ShowAsync();
+            }
+            else
+            {
+               var dlg = new MessageDialog( "NOT LOGGED IN" );
+               await dlg.ShowAsync();
+            }
          }
-         else
+         catch ( MobileServiceInvalidOperationException ex )
          {
-            var dlg = new MessageDialog( "NOT LOGGED IN" );
+            var dlg = new MessageDialog( $"Exception: {ex.Message} - {ex.Response.StatusCode}" );
             await dlg.ShowAsync();
+
+            if ( ex.Response.StatusCode == HttpStatusCode.NotFound )
+            {
+               dlg = new MessageDialog( "USER NOT FOUND - CREATING USER" );
+               await dlg.ShowAsync();
+
+               try
+               {
+                  await _mobileService.GetTable<User>().InsertAsync( new User() { UserName = "abababababababababab" } );
+
+                  dlg = new MessageDialog( "CREATED USER - GETTING USER" );
+                  await dlg.ShowAsync();
+
+                  try
+                  {
+                     var user = await _mobileService.GetTable<User>().ToCollectionAsync();
+                     dlg = new MessageDialog( user.First().UserName );
+                     await dlg.ShowAsync();
+                  }
+                  catch ( MobileServiceInvalidOperationException ex2 )
+                  {
+                     dlg = new MessageDialog( $"Exception: {ex2.Message} - {ex2.Response.StatusCode}" );
+                     await dlg.ShowAsync();
+                  }
+               }
+               catch ( MobileServiceInvalidOperationException ex3 )
+               {
+                  dlg = new MessageDialog( $"Exception: {ex3.Message} - {ex3.Response.StatusCode}" );
+                  await dlg.ShowAsync();
+               }
+            }
          }
       }
 

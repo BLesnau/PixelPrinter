@@ -29,7 +29,7 @@ namespace PixelPrinterService
       }
 
       // GET tables/User
-      public async Task<IHttpActionResult> GetUser()
+      public IHttpActionResult GetUser()
       {
          if ( ClaimsPrincipal.Current != null )
          {
@@ -43,13 +43,7 @@ namespace PixelPrinterService
                   return Ok( (new SingleResult<User>( existingUsers )).Queryable );
                }
 
-               await PostUser( new User() { UserUnique = stableSid, UserName = "TestName2" } );
-
-               existingUsers = Query().Where( x => x.UserUnique == stableSid );
-               if ( existingUsers.Count() == 1 )
-               {
-                  return Ok( (new SingleResult<User>( existingUsers )).Queryable );
-               }
+               return NotFound();
             }
          }
 
@@ -57,9 +51,18 @@ namespace PixelPrinterService
       }
 
       // POST tables/User
-      public async Task<IHttpActionResult> PostUser( User item )
+      public async Task<IHttpActionResult> PostUser( User user )
       {
-         User current = await InsertAsync( item );
+         bool userNameExists = Query().Any( x => x.UserName == user.UserName );
+         if ( string.IsNullOrWhiteSpace( user.UserName ) || user.UserName.Length > 20 || userNameExists )
+         {
+            return BadRequest();
+         }
+
+         var stableSid = ClaimsPrincipal.Current.Claims.Where( c => c.Type == "stable_sid" ).Select( c => c.Value ).SingleOrDefault();
+         user.UserUnique = stableSid;
+
+         User current = await InsertAsync( user );
          return CreatedAtRoute( "Tables", new { id = current.Id }, current );
       }
 
