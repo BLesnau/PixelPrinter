@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>WSAPlayer:21</UnityBuildTarget>
     <UnityVersion>5.3.4f1</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion Condition=" '$(VisualStudioVersion)' != '10.0' ">4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -69,6 +67,12 @@
     <Reference Include="NativePlugin">
       <HintPath>Assets\Plugins\NativePlugin.dll</HintPath>
     </Reference>
+    <Reference Include="Pathfinding.JsonFx">
+      <HintPath>Assets\Plugins\Pathfinding.JsonFx.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityRestClient">
+      <HintPath>Assets\Plugins\UnityRestClient.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\ActionStack\ActionStack.cs" />
@@ -96,13 +100,13 @@
     <Compile Include="Assets\Scripts\Pixels\PixelManager.cs" />
     <Compile Include="Assets\Scripts\Plugins\iTween.cs" />
     <Compile Include="Assets\Scripts\Point.cs" />
+    <Compile Include="Assets\Scripts\ThreadDispatcher.cs" />
     <Compile Include="Assets\Scripts\UI\AnimateTrayMenu.cs" />
     <Compile Include="Assets\Scripts\UI\ColorButton.cs" />
     <Compile Include="Assets\Scripts\UI\ColorPicker.cs" />
     <Compile Include="Assets\Scripts\UI\ShowFPS.cs" />
     <Compile Include="Assets\Scripts\UI\UIButton.cs" />
     <Compile Include="Assets\Scripts\UI\UIManager.cs" />
-    <Compile Include="Assets\Scripts\ThreadDispatcher.cs" />
     <Compile Include="Assets\Scripts\WSAComm.cs" />
     <Compile Include="Assets\Scripts\iTween.cs" />
   </ItemGroup>
