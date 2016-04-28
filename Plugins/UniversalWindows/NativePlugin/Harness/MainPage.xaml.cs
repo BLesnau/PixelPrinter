@@ -1,16 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Storage;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Microsoft.WindowsAzure.MobileServices;
 using NativePlugin;
 using Newtonsoft.Json.Linq;
-using PixelPrinter;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -23,10 +23,7 @@ namespace Harness
    {
       private PixelPrinterPlugin.TargetEnvironment _environment = PixelPrinterPlugin.TargetEnvironment.Local;
       private readonly MobileServiceClient _mobileService;
-      private string _authToken;
-      private string _userId;
-      private string _uniqueId;
-      private User _user;
+      private readonly string _settingsFile = Path.Combine( ApplicationData.Current.LocalFolder.Path, "user.txt" );
 
       public MainPage()
       {
@@ -34,8 +31,6 @@ namespace Harness
 
          _mobileService = new MobileServiceClient( PixelPrinterPlugin.GetServiceUrl( _environment ) );
          _mobileService.AlternateLoginHost = new Uri( PixelPrinterPlugin.GetServiceUrl( PixelPrinterPlugin.TargetEnvironment.Live ) );
-
-         _user = null;
       }
 
       private async void LoginNewClick( object sender, RoutedEventArgs e )
@@ -47,9 +42,12 @@ namespace Harness
       {
          try
          {
-            if ( IsTokenExpired( _authToken ) )
+            if ( IsTokenExpired( GetAuthToken() ) )
             {
-               _authToken = _userId = _uniqueId = string.Empty;
+               var dlg = new MessageDialog( "TOKEN EXPIRED - LOGGING IN AGAIN" );
+               await dlg.ShowAsync();
+
+               DeleteSettingsFile();
             }
          }
          catch { }
@@ -59,11 +57,14 @@ namespace Harness
 
       private async Task Login()
       {
+         var authToken = GetAuthToken();
+         var userId = GetUserId();
+
          try
          {
-            if ( !string.IsNullOrWhiteSpace( _authToken ) && !string.IsNullOrWhiteSpace( _userId ) && !string.IsNullOrWhiteSpace( _uniqueId ) )
+            if ( !string.IsNullOrWhiteSpace( authToken ) && !string.IsNullOrWhiteSpace( userId ) )
             {
-               _mobileService.CurrentUser = new MobileServiceUser( _userId ) { MobileServiceAuthenticationToken = _authToken };
+               _mobileService.CurrentUser = new MobileServiceUser( userId ) { MobileServiceAuthenticationToken = authToken };
 
                var dlg = new MessageDialog( "ALREADY SIGNED IN" );
                await dlg.ShowAsync();
@@ -72,9 +73,11 @@ namespace Harness
             {
                var strToSplit = await PixelPrinterPlugin.GetAuthToken( _environment );
                var splitStr = strToSplit.Split( ',' );
-               _authToken = splitStr[0];
-               _userId = splitStr[1];
-               _uniqueId = GetJToken( _authToken )["stable_sid"].ToString();
+               authToken = splitStr[0];
+               userId = splitStr[1];
+               var uniqueId = GetJToken( authToken )["stable_sid"].ToString();
+
+               await SaveSettings( userId, authToken );
 
                var dlg = new MessageDialog( "SIGNED IN" );
                await dlg.ShowAsync();
@@ -82,9 +85,9 @@ namespace Harness
          }
          catch { }
 
-         var dlg2 = new MessageDialog( _authToken );
+         var dlg2 = new MessageDialog( authToken );
          await dlg2.ShowAsync();
-         dlg2 = new MessageDialog( _userId );
+         dlg2 = new MessageDialog( userId );
          await dlg2.ShowAsync();
       }
 
@@ -92,17 +95,17 @@ namespace Harness
       {
          try
          {
-            if ( !string.IsNullOrWhiteSpace( _authToken ) )
-            {
-               var user = await _mobileService.GetTable<User>().ToCollectionAsync();
-               var dlg = new MessageDialog( user.First().UserName );
-               await dlg.ShowAsync();
-            }
-            else
-            {
-               var dlg = new MessageDialog( "NOT LOGGED IN" );
-               await dlg.ShowAsync();
-            }
+            //if ( !string.IsNullOrWhiteSpace( _authToken ) )
+            //{
+            var user = await _mobileService.GetTable<User>().ToCollectionAsync();
+            var dlg = new MessageDialog( user.First().UserName );
+            await dlg.ShowAsync();
+            //}
+            //else
+            //{
+            //   var dlg = new MessageDialog( "NOT LOGGED IN" );
+            //   await dlg.ShowAsync();
+            //}
          }
          catch ( MobileServiceInvalidOperationException ex )
          {
@@ -197,6 +200,46 @@ namespace Harness
 
          // If the expiration date is less than now, the token is expired and we return true.
          return expire < DateTime.UtcNow ? true : false;
+      }
+
+      private string GetUserId()
+      {
+         return GetLineOfSettingsFile( 0 );
+      }
+
+      private string GetAuthToken()
+      {
+         return GetLineOfSettingsFile( 1 );
+      }
+
+      private string GetLineOfSettingsFile( int lineIndex )
+      {
+         if ( File.Exists( _settingsFile ) )
+         {
+            var fileText = File.ReadLines( _settingsFile ).ToList();
+            if ( fileText.Count() >= 2 )
+            {
+               if ( !string.IsNullOrWhiteSpace( fileText[lineIndex] ) )
+               {
+                  return fileText[lineIndex];
+               }
+            }
+         }
+
+         return null;
+      }
+
+      private void DeleteSettingsFile()
+      {
+         if ( File.Exists( _settingsFile ) )
+         {
+            File.Delete( _settingsFile );
+         }
+      }
+
+      private async Task SaveSettings( string userId, string authToken )
+      {
+         await Task.Run( () => File.WriteAllLines( _settingsFile, new string[] { userId, authToken } ) );
       }
    }
 }
