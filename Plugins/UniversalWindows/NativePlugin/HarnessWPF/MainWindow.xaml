@@ -7,6 +7,12 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        
-    </Grid>
+      <StackPanel HorizontalAlignment="Center"
+                  VerticalAlignment="Center">
+         <Button Click="CheckTokenExpiration"
+                 Content="Check Token Expiration" />
+         <Button Click="GetUserClick"
+                 Content="Get User" />
+      </StackPanel>
+   </Grid>
 </Window>
