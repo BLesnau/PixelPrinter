@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.Entity;
+using System.Data.Entity.Migrations;
 using System.Web.Http;
 using Microsoft.Azure.Mobile.Server;
 using Microsoft.Azure.Mobile.Server.Authentication;
@@ -26,7 +27,9 @@ namespace PixelPrinterService
              .ApplyTo( config );
 
          // Use Entity Framework Code First to create database tables based on your DbContext
-         Database.SetInitializer( new PixelPrinterInitializer() );
+         //Database.SetInitializer( new PixelPrinterInitializer() );
+         var migrator = new DbMigrator( new Migrations.Configuration() );
+         migrator.Update();
 
          // To prevent Entity Framework from modifying your database schema, use a null database initializer
          // Database.SetInitializer<PixelPrinterContext>(null);

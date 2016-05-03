@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Windows.Networking.NetworkOperators;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Microsoft.WindowsAzure.MobileServices;
@@ -8,14 +9,34 @@ namespace NativePlugin
 {
    public static class PixelPrinterPlugin
    {
-      public static async Task<string> GetAuthToken()
+      public enum TargetEnvironment { Local, Live };
+
+      public static string GetServiceUrl( TargetEnvironment env = TargetEnvironment.Live )
+      {
+         switch ( env )
+         {
+            case TargetEnvironment.Local:
+            {
+               return "http://desktop-or80phq/PixelPrinterService";
+            }
+            case TargetEnvironment.Live:
+            default:
+            {
+               return "https://pixelprinter.azurewebsites.net";
+            }
+         }
+      }
+
+      public static async Task<string> GetAuthToken( TargetEnvironment env = TargetEnvironment.Live )
       {
          try
          {
-            var mobileService = new MobileServiceClient( "https://pixelprinter.azurewebsites.net" );
+            var mobileService = new MobileServiceClient( GetServiceUrl( env ) );
+            mobileService.AlternateLoginHost = new Uri( GetServiceUrl( TargetEnvironment.Live ) );
             var user = await mobileService.LoginAsync( MobileServiceAuthenticationProvider.Google );
 
-            return user.MobileServiceAuthenticationToken;
+            //return user.MobileServiceAuthenticationToken;
+            return string.Join( ",", new string[] { user.MobileServiceAuthenticationToken, user.UserId } );
          }
          catch ( Exception ex )
          {

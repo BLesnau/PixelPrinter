@@ -28,7 +28,7 @@ namespace PixelPrinter
 #if DEBUG
       public static MobileServiceClient MobileService = new MobileServiceClient(
           "http://desktop-or80phq/PixelPrinterService"
-          //"http://localhost:51541/"
+      //"http://localhost:51541/"
       )
       { AlternateLoginHost = new Uri( "https://pixelprinter.azurewebsites.net" ) };
 #else

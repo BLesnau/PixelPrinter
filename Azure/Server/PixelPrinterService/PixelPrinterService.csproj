@@ -90,6 +90,7 @@
     <Reference Include="EntityFramework.SqlServer">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Web.Http">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll</HintPath>
@@ -156,8 +157,23 @@
   <ItemGroup>
     <Compile Include="App_Start\Startup.MobileApp.cs" />
     <Compile Include="Controllers\TodoItemController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="DataObjects\TodoItem.cs" />
+    <Compile Include="DataObjects\User.cs" />
+    <Compile Include="Migrations\201604200451582_InitialCreate.cs" />
+    <Compile Include="Migrations\201604200451582_InitialCreate.Designer.cs">
+      <DependentUpon>201604200451582_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201604200455540_AddUsers.cs" />
+    <Compile Include="Migrations\201604200455540_AddUsers.Designer.cs">
+      <DependentUpon>201604200455540_AddUsers.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201604210407389_IndexUsers.cs" />
+    <Compile Include="Migrations\201604210407389_IndexUsers.Designer.cs">
+      <DependentUpon>201604210407389_IndexUsers.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\PixelPrinterContext.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -178,6 +194,17 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\PublishProfiles\PixelPrinter - Web Deploy.pubxml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201604200451582_InitialCreate.resx">
+      <DependentUpon>201604200451582_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201604200455540_AddUsers.resx">
+      <DependentUpon>201604200455540_AddUsers.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201604210407389_IndexUsers.resx">
+      <DependentUpon>201604210407389_IndexUsers.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />

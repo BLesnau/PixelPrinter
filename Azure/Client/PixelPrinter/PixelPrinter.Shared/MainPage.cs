@@ -42,10 +42,12 @@ namespace PixelPrinter
          MobileServiceInvalidOperationException exception = null;
          try
          {
+            //var h = todoTable.Where(todoItem => todoItem.Complete == false);
+
             // This code refreshes the entries in the list view by querying the TodoItems table.
             // The query excludes completed TodoItems.
-            items = await todoTable
-                .Where( todoItem => todoItem.Complete == false )
+            var items2 = todoTable
+                .Where( x => true )
                 .ToCollectionAsync();
          }
          catch ( MobileServiceInvalidOperationException e )
@@ -102,6 +104,16 @@ namespace PixelPrinter
       {
          //await InitLocalStoreAsync(); // offline sync
          await RefreshTodoItems();
+
+         try
+         {
+            await App.MobileService.LoginAsync( MobileServiceAuthenticationProvider.Google );
+         }
+         catch ( Exception ex )
+         {
+            var i = 0;
+            i++;
+         }
       }
 
       #region Offline sync
