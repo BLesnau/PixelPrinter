@@ -9,8 +9,6 @@
     <Grid>
       <StackPanel HorizontalAlignment="Center"
                   VerticalAlignment="Center">
-         <Button Click="CheckTokenExpiration"
-                 Content="Check Token Expiration" />
          <Button Click="GetUserClick"
                  Content="Get User" />
       </StackPanel>
