@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using RestSharp.Extensions;
+using System.Reflection;
 
 public class AzureResponseObject
 {
@@ -62,31 +63,32 @@ public class AzureResponseObject
       var stringValue = Convert.ToString( value, _culture );
 
       // check for nullable and extract underlying type
-      if ( type.IsGenericType && type.GetGenericTypeDefinition() == typeof( Nullable<> ) )
-      {
-         // Since the type is nullable and no value is provided return null
-         if ( String.IsNullOrEmpty( stringValue ) )
-         {
-            return null;
-         }
+      //if ( type.IsGenericType && type.GetGenericTypeDefinition() == typeof( Nullable<> ) )
+      //{
+      //   // Since the type is nullable and no value is provided return null
+      //   if ( String.IsNullOrEmpty( stringValue ) )
+      //   {
+      //      return null;
+      //   }
 
-         type = type.GetGenericArguments()[0];
-      }
+      //   type = type.GetGenericArguments()[0];
+      //}
 
       if ( type == typeof( System.Object ) && value != null )
       {
          type = value.GetType();
       }
 
-      if ( type.IsPrimitive )
-      {
-         return value.ChangeType( type, _culture );
-      }
-      else if ( type.IsEnum )
-      {
-         return type.FindEnumValue( stringValue, _culture );
-      }
-      else if ( type == typeof( Uri ) )
+      //if ( type.IsPrimitive )
+      //{
+      //   return value.ChangeType( type, _culture );
+      //}
+      //else if ( type.IsEnum )
+      //{
+      //   return type.FindEnumValue( stringValue, _culture );
+      //}
+      //else if ( type == typeof( Uri ) )
+      if ( type == typeof( Uri ) )
       {
          return new Uri( stringValue, UriKind.RelativeOrAbsolute );
       }

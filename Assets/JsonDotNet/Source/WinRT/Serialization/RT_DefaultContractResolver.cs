@@ -346,10 +346,10 @@ namespace Newtonsoft.Json.Serialization
 				Type dictionaryType;
 				if (ReflectionUtils.ImplementsGenericDefinition(t, typeof(IDictionary<,>), out dictionaryType))
 				{
-					Type keyType = dictionaryType.GetGenericArguments()[0];
-					Type valueType = dictionaryType.GetGenericArguments()[1];
+					Type keyType =  Newtonsoft.Json.Utilities.TypeExtensions.GetGenericArguments(dictionaryType)[0];
+					Type valueType = Newtonsoft.Json.Utilities.TypeExtensions.GetGenericArguments(dictionaryType)[1];
 
-					if (keyType.IsAssignableFrom(typeof(string)) && valueType.IsAssignableFrom(typeof(JToken)))
+					if ( Newtonsoft.Json.Utilities.TypeExtensions.IsAssignableFrom(keyType, typeof(string)) && Newtonsoft.Json.Utilities.TypeExtensions.IsAssignableFrom(valueType, typeof(JToken)))
 						return true;
 				}
 
@@ -370,9 +370,9 @@ namespace Newtonsoft.Json.Serialization
 			Type dictionaryType;
 			ReflectionUtils.ImplementsGenericDefinition(t, typeof(IDictionary<,>), out dictionaryType);
 
-			Type keyType = dictionaryType.GetGenericArguments()[0];
-			Type valueType = dictionaryType.GetGenericArguments()[1];
-			bool isJTokenValueType = typeof(JToken).IsAssignableFrom(valueType);
+			Type keyType = Newtonsoft.Json.Utilities.TypeExtensions.GetGenericArguments(dictionaryType)[0];
+			Type valueType = Newtonsoft.Json.Utilities.TypeExtensions.GetGenericArguments(dictionaryType)[1];
+			bool isJTokenValueType = Newtonsoft.Json.Utilities.TypeExtensions.IsAssignableFrom(typeof(JToken), valueType);
 
 			// change type to a class if it is the base interface so it can be instantiated if needed
 			if (ReflectionUtils.IsGenericDefinition(t, typeof(IDictionary<,>)))
@@ -402,7 +402,7 @@ namespace Newtonsoft.Json.Serialization
 			};
 
 			Type enumerableWrapper = typeof(DictionaryEnumerator<,>).MakeGenericType(keyType, valueType);
-			ConstructorInfo constructors = enumerableWrapper.GetConstructors().First();
+			ConstructorInfo constructors = Newtonsoft.Json.Utilities.TypeExtensions.GetConstructors(enumerableWrapper).First();
 			MethodCall<object, object> createEnumerableWrapper = JsonTypeReflector.ReflectionDelegateFactory.CreateMethodCall<object>(constructors);
 
 			ExtensionDataGetter extensionDataGetter = o =>
@@ -838,13 +838,13 @@ namespace Newtonsoft.Json.Serialization
 			if (CollectionUtils.IsDictionaryType(t))
 				return CreateDictionaryContract(objectType);
 
-			if (typeof(IEnumerable).IsAssignableFrom(t))
+			if (Newtonsoft.Json.Utilities.TypeExtensions.IsAssignableFrom(typeof(IEnumerable), t))
 				return CreateArrayContract(objectType);
 
 			if (CanConvertToString(t))
 				return CreateStringContract(objectType);
 
-			if (typeof(IDynamicMetaObjectProvider).IsAssignableFrom(t))
+			if (Newtonsoft.Json.Utilities.TypeExtensions.IsAssignableFrom(typeof(IDynamicMetaObjectProvider), t))
 				return CreateDynamicContract(objectType);
 
 			return CreateObjectContract(objectType);
@@ -1097,9 +1097,9 @@ namespace Newtonsoft.Json.Serialization
 
 		private void SetIsSpecifiedActions(JsonProperty property, MemberInfo member, bool allowNonPublicAccess)
 		{
-			MemberInfo specifiedMember = member.DeclaringType.GetProperty(member.Name + JsonTypeReflector.SpecifiedPostfix);
+			MemberInfo specifiedMember = Newtonsoft.Json.Utilities.TypeExtensions.GetProperty(member.DeclaringType, member.Name + JsonTypeReflector.SpecifiedPostfix);
 			if (specifiedMember == null)
-				specifiedMember = member.DeclaringType.GetField(member.Name + JsonTypeReflector.SpecifiedPostfix);
+				specifiedMember = Newtonsoft.Json.Utilities.TypeExtensions.GetField(member.DeclaringType, member.Name + JsonTypeReflector.SpecifiedPostfix);
 
 			if (specifiedMember == null || ReflectionUtils.GetMemberUnderlyingType(specifiedMember) != typeof(bool))
 			{

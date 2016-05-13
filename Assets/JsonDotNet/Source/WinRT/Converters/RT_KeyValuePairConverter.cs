@@ -49,8 +49,8 @@ namespace Newtonsoft.Json.Converters
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
     {
       Type t = value.GetType();
-      PropertyInfo keyProperty = t.GetProperty(KeyName);
-      PropertyInfo valueProperty = t.GetProperty(ValueName);
+      PropertyInfo keyProperty = Newtonsoft.Json.Utilities.TypeExtensions.GetProperty(t, KeyName);
+      PropertyInfo valueProperty = Newtonsoft.Json.Utilities.TypeExtensions.GetProperty(t, ValueName);
 
       DefaultContractResolver resolver = serializer.ContractResolver as DefaultContractResolver;
 
@@ -87,7 +87,7 @@ namespace Newtonsoft.Json.Converters
        ? Nullable.GetUnderlyingType(objectType)
        : objectType;
 
-      IList<Type> genericArguments = t.GetGenericArguments();
+      IList<Type> genericArguments = Newtonsoft.Json.Utilities.TypeExtensions.GetGenericArguments(t);
       Type keyType = genericArguments[0];
       Type valueType = genericArguments[1];
 

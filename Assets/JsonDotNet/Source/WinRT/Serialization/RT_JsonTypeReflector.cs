@@ -167,7 +167,7 @@ namespace Newtonsoft.Json.Serialization
       if (attribute != null)
         return attribute;
 
-      foreach (Type typeInterface in type.GetInterfaces())
+      foreach (Type typeInterface in Newtonsoft.Json.Utilities.TypeExtensions.GetInterfaces(type))
       {
         attribute = ReflectionUtils.GetAttribute<T>(typeInterface, true);
         if (attribute != null)
@@ -187,7 +187,7 @@ namespace Newtonsoft.Json.Serialization
 
       if (memberInfo.DeclaringType != null)
       {
-        foreach (Type typeInterface in memberInfo.DeclaringType.GetInterfaces())
+        foreach (Type typeInterface in  Newtonsoft.Json.Utilities.TypeExtensions.GetInterfaces(memberInfo.DeclaringType))
         {
           MemberInfo interfaceTypeMemberInfo = ReflectionUtils.GetMemberInfoFromType(typeInterface, memberInfo);
 

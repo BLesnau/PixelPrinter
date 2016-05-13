@@ -182,7 +182,7 @@ namespace Newtonsoft.Json.Converters
             StringComparer.OrdinalIgnoreCase,
             StringComparer.OrdinalIgnoreCase);
 
-          foreach (FieldInfo f in t.GetFields())
+          foreach (FieldInfo f in Newtonsoft.Json.Utilities.TypeExtensions.GetFields(t))
           {
             string n1 = f.Name;
             string n2;

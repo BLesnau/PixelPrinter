@@ -420,7 +420,6 @@
     <Compile Include="Assets\Scripts\Pixels\PixelManager.cs" />
     <Compile Include="Assets\Scripts\Plugins\iTween.cs" />
     <Compile Include="Assets\Scripts\Point.cs" />
-    <Compile Include="Assets\Scripts\ThreadDispatcher.cs" />
     <Compile Include="Assets\Scripts\UI\AnimateTrayMenu.cs" />
     <Compile Include="Assets\Scripts\UI\ColorButton.cs" />
     <Compile Include="Assets\Scripts\UI\ColorPicker.cs" />

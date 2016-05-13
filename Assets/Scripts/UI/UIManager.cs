@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
-using NativePlugin;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,7 +8,6 @@ public class UIManager : MonoBehaviour, ILoginListener
 {
    public PixelManager PixelManager;
 
-   public Image SuspendOverlay;
    public GameObject ToolSelectBackground;
    public GameObject ColorSelectBackground;
    public ColorPicker ColorPicker;
@@ -51,9 +49,6 @@ public class UIManager : MonoBehaviour, ILoginListener
       if ( !Application.isShowingSplashScreen && !_splashScreenDone )
       {
          _splashScreenDone = true;
-
-         //var c = SuspendOverlay.color;
-         //SuspendOverlay.color = new Color( c.r, c.g, c.b, 1 );
          AzureHelper.Login( this );
       }
    }
@@ -205,13 +200,5 @@ public class UIManager : MonoBehaviour, ILoginListener
    public void LoginCompleted( bool succeeded )
    {
       DebugHelper.Log( "Login Status", succeeded.ToString() );
-      //ThreadDispatcher.Instance().Enqueue( HideSuspendOverlay() );
-   }
-
-   public IEnumerator HideSuspendOverlay()
-   {
-      var c = SuspendOverlay.color;
-      SuspendOverlay.color = new Color( c.r, c.g, c.b, 0 );
-      yield return null;
    }
 }
