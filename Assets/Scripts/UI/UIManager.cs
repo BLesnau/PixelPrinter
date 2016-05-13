@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
-using NativePlugin;
 using UnityEngine;
 using UnityEngine.UI;
 
