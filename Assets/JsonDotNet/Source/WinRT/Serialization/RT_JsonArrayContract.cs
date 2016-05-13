@@ -87,10 +87,10 @@ namespace Newtonsoft.Json.Serialization
         canDeserialize = true;
         IsMultidimensionalArray = (IsArray && UnderlyingType.GetArrayRank() > 1);
       }
-      else if (typeof(IList).IsAssignableFrom(underlyingType))
+      else if (Newtonsoft.Json.Utilities.TypeExtensions.IsAssignableFrom(typeof(IList), underlyingType))
       {
         if (ReflectionUtils.ImplementsGenericDefinition(underlyingType, typeof(ICollection<>), out _genericCollectionDefinitionType))
-          CollectionItemType = _genericCollectionDefinitionType.GetGenericArguments()[0];
+          CollectionItemType = Newtonsoft.Json.Utilities.TypeExtensions.GetGenericArguments(_genericCollectionDefinitionType)[0];
         else
           CollectionItemType = ReflectionUtils.GetCollectionItemType(underlyingType);
 
@@ -105,7 +105,7 @@ namespace Newtonsoft.Json.Serialization
       }
       else if (ReflectionUtils.ImplementsGenericDefinition(underlyingType, typeof(ICollection<>), out _genericCollectionDefinitionType))
       {
-        CollectionItemType = _genericCollectionDefinitionType.GetGenericArguments()[0];
+        CollectionItemType = Newtonsoft.Json.Utilities.TypeExtensions.GetGenericArguments(_genericCollectionDefinitionType)[0];
 
         if (ReflectionUtils.IsGenericDefinition(underlyingType, typeof(ICollection<>))
           || ReflectionUtils.IsGenericDefinition(underlyingType, typeof(IList<>)))
@@ -121,7 +121,7 @@ namespace Newtonsoft.Json.Serialization
 //#if !(NET40 || NET35 || NET20 || SILVERLIGHT || WINDOWS_PHONE || PORTABLE40)
       else if (ReflectionUtils.ImplementsGenericDefinition(underlyingType, typeof(IReadOnlyCollection<>), out tempCollectionType))
       {
-        CollectionItemType = underlyingType.GetGenericArguments()[0];
+        CollectionItemType = Newtonsoft.Json.Utilities.TypeExtensions.GetGenericArguments(underlyingType)[0];
 
         if (ReflectionUtils.IsGenericDefinition(underlyingType, typeof(IReadOnlyCollection<>))
           || ReflectionUtils.IsGenericDefinition(underlyingType, typeof(IReadOnlyList<>)))
@@ -135,7 +135,7 @@ namespace Newtonsoft.Json.Serialization
 //#endif
       else if (ReflectionUtils.ImplementsGenericDefinition(underlyingType, typeof(IEnumerable<>), out tempCollectionType))
       {
-        CollectionItemType = tempCollectionType.GetGenericArguments()[0];
+        CollectionItemType = Newtonsoft.Json.Utilities.TypeExtensions.GetGenericArguments(tempCollectionType)[0];
 
         if (ReflectionUtils.IsGenericDefinition(UnderlyingType, typeof(IEnumerable<>)))
           CreatedType = typeof(List<>).MakeGenericType(CollectionItemType);

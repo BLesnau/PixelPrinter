@@ -82,8 +82,8 @@ namespace Newtonsoft.Json.Serialization
 
       if (ReflectionUtils.ImplementsGenericDefinition(underlyingType, typeof(IDictionary<,>), out _genericCollectionDefinitionType))
       {
-        keyType = _genericCollectionDefinitionType.GetGenericArguments()[0];
-        valueType = _genericCollectionDefinitionType.GetGenericArguments()[1];
+        keyType = Newtonsoft.Json.Utilities.TypeExtensions.GetGenericArguments(_genericCollectionDefinitionType)[0];
+        valueType = Newtonsoft.Json.Utilities.TypeExtensions.GetGenericArguments(_genericCollectionDefinitionType)[1];
 
         if (ReflectionUtils.IsGenericDefinition(UnderlyingType, typeof(IDictionary<,>)))
           CreatedType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
@@ -95,8 +95,8 @@ namespace Newtonsoft.Json.Serialization
 //#if !(NET40 || NET35 || NET20 || SILVERLIGHT || WINDOWS_PHONE || PORTABLE40)
       else if (ReflectionUtils.ImplementsGenericDefinition(underlyingType, typeof(IReadOnlyDictionary<,>), out _genericCollectionDefinitionType))
       {
-        keyType = _genericCollectionDefinitionType.GetGenericArguments()[0];
-        valueType = _genericCollectionDefinitionType.GetGenericArguments()[1];
+        keyType = Newtonsoft.Json.Utilities.TypeExtensions.GetGenericArguments(_genericCollectionDefinitionType)[0];
+        valueType = Newtonsoft.Json.Utilities.TypeExtensions.GetGenericArguments(_genericCollectionDefinitionType)[1];
 
         if (ReflectionUtils.IsGenericDefinition(UnderlyingType, typeof(IReadOnlyDictionary<,>)))
           CreatedType = typeof(ReadOnlyDictionary<,>).MakeGenericType(keyType, valueType);
@@ -115,7 +115,7 @@ namespace Newtonsoft.Json.Serialization
       if (keyType != null && valueType != null)
         ParametrizedConstructor = CollectionUtils.ResolveEnumableCollectionConstructor(CreatedType, typeof(KeyValuePair<,>).MakeGenericType(keyType, valueType));
 
-      ShouldCreateWrapper = !typeof(IDictionary).IsAssignableFrom(CreatedType);
+      ShouldCreateWrapper = !Newtonsoft.Json.Utilities.TypeExtensions.IsAssignableFrom(typeof(IDictionary), CreatedType);
 
       DictionaryKeyType = keyType;
       DictionaryValueType = valueType;

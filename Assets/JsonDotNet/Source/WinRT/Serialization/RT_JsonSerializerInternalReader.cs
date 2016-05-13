@@ -513,7 +513,7 @@ To fix this error either change the JSON to a {1} or change the deserialized typ
 
                 if (objectType != null
                     && objectType != typeof (IDynamicMetaObjectProvider)
-                    && !objectType.IsAssignableFrom(specifiedType))
+                    && !Newtonsoft.Json.Utilities.TypeExtensions.IsAssignableFrom(objectType, specifiedType))
                   throw JsonSerializationException.Create(reader, "Type specified in JSON '{0}' is not compatible with '{1}'.".FormatWith(CultureInfo.InvariantCulture, specifiedType.AssemblyQualifiedName, objectType.AssemblyQualifiedName));
 
                 objectType = specifiedType;
