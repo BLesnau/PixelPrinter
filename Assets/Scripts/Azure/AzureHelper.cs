@@ -1,12 +1,7 @@
 ﻿using System;
-using System.CodeDom;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading;
 using Newtonsoft.Json.Linq;
 using RestSharp;
-
 #if UNITY_EDITOR || UNITY_WSA
 using NativePlugin;
 #endif
@@ -16,16 +11,21 @@ public class AzureHelper
    private static string _serviceUrl =
       "http://desktop-or80phq/PixelPrinterService";
    //"https://pixelprinter.azurewebsites.net";
-   private static readonly string _settingsFile = Path.Combine( @"C:\Users\lesna\AppData\Local\Packages\b65e477c-6255-4ac2-9130-228d0e221b1a_a5p0ghy48hknt\LocalState", "user.txt" );
 
    public static void Login( ILoginListener loginListener )
    {
       var authToken = string.Empty;
 
+      try
+      {
+         CheckTokenExpiration();
+      }
+      catch (AuthenticationExpiredException)
+      {
 #if UNITY_EDITOR
-      authToken = PixelPrinterPlugin.GetAuthToken();
-      //DebugHelper.Log( "Auth Token", authToken );
-      loginListener.LoginCompleted( true );
+         authToken = PixelPrinterPlugin.GetAuthToken();
+         //DebugHelper.Log( "Auth Token", authToken );
+         loginListener.LoginCompleted( true );
 #elif UNITY_WSA && !UNITY_EDITOR
       try
       {
@@ -43,8 +43,7 @@ public class AzureHelper
 #else
       authToken = GetAuthToken();
 #endif
-
-      SaveSettings( "NA", authToken );
+      }
    }
 
    public static User GetUser()
@@ -55,7 +54,7 @@ public class AzureHelper
 
       var request = new RestRequest( "tables/User", Method.GET ) { RequestFormat = DataFormat.Json };
 
-      request.AddHeader( "X-ZUMO-AUTH", GetAuthToken() );
+      request.AddHeader( "X-ZUMO-AUTH", SettingsManager.GetSetting( SettingsManager.StringSetting.AuthToken ) );
 
       var user = new User();
       bool threadDone = false;
@@ -80,7 +79,7 @@ public class AzureHelper
 
    private static void CheckTokenExpiration()
    {
-      if ( IsTokenExpired( GetAuthToken() ) )
+      if ( IsTokenExpired( SettingsManager.GetSetting( SettingsManager.StringSetting.AuthToken ) ) )
       {
          throw new AuthenticationExpiredException();
       }
@@ -148,45 +147,5 @@ public class AzureHelper
       {
          return true;
       }
-   }
-
-   private static string GetUserId()
-   {
-      return GetLineOfSettingsFile( 0 );
-   }
-
-   private static string GetAuthToken()
-   {
-      return GetLineOfSettingsFile( 1 );
-   }
-
-   private static string GetLineOfSettingsFile( int lineIndex )
-   {
-      if ( File.Exists( _settingsFile ) )
-      {
-         var fileText = File.ReadAllLines( _settingsFile ).ToList();
-         if ( fileText.Count() >= 2 )
-         {
-            if ( !string.IsNullOrEmpty( fileText[lineIndex] ) )
-            {
-               return fileText[lineIndex];
-            }
-         }
-      }
-
-      return null;
-   }
-
-   private static void DeleteSettingsFile()
-   {
-      if ( File.Exists( _settingsFile ) )
-      {
-         File.Delete( _settingsFile );
-      }
-   }
-
-   private static void SaveSettings( string userId, string authToken )
-   {
-      File.WriteAllLines( _settingsFile, new string[] { userId, authToken } );
    }
 }
