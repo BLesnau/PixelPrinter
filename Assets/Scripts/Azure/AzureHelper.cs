@@ -20,29 +20,38 @@ public class AzureHelper
       {
          CheckTokenExpiration();
       }
-      catch (AuthenticationExpiredException)
+      catch ( AuthenticationExpiredException )
       {
-#if UNITY_EDITOR
-         authToken = PixelPrinterPlugin.GetAuthToken();
-         //DebugHelper.Log( "Auth Token", authToken );
-         loginListener.LoginCompleted( true );
-#elif UNITY_WSA && !UNITY_EDITOR
-      try
-      {
-         UnityEngine.WSA.Application.InvokeOnUIThread( async () =>
+         if ( UnityHelper.IsEditor() )
          {
-            authToken = await PixelPrinterPlugin.GetAuthToken();
+#if UNITY_EDITOR
+            authToken = PixelPrinterPlugin.GetAuthToken();
             //DebugHelper.Log( "Auth Token", authToken );
-            loginListener.LoginCompleted( !string.IsNullOrEmpty( authToken ) ? true : false );
-         }, true );
-      }
-      catch ( Exception ex )
-      {
-         DebugHelper.Log( "Exception", ex.Message );
-      }
-#else
-      authToken = GetAuthToken();
+            loginListener.LoginCompleted( true );
 #endif
+         }
+         else if ( UnityHelper.IsUWP() )
+         {
+#if IS_UWP
+            try
+            {
+               UnityEngine.WSA.Application.InvokeOnUIThread( async () =>
+               {
+                  authToken = await PixelPrinterPlugin.GetAuthToken();
+                  //DebugHelper.Log( "Auth Token", authToken );
+                  loginListener.LoginCompleted( !string.IsNullOrEmpty( authToken ) ? true : false );
+               }, true );
+            }
+            catch ( Exception ex )
+            {
+               DebugHelper.Log( "Exception", ex.Message );
+            }
+#endif
+         }
+         else
+         {
+            authToken = SettingsManager.GetSetting( SettingsManager.StringSetting.AuthToken );
+         }
       }
    }
 
