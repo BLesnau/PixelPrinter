@@ -50,6 +50,7 @@ public class UIManager : MonoBehaviour, ILoginListener
       {
          _splashScreenDone = true;
          AzureHelper.Login( this );
+         AzureHelper.GetUser();
       }
    }
 

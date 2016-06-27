@@ -3,13 +3,13 @@ using System.Linq;
 
 namespace NativePlugin
 {
-    public static class PixelPrinterPlugin
-    {
-      private static readonly string _settingsFile = Path.Combine( @"C:\Users\lesna\AppData\Local\Packages\b65e477c-6255-4ac2-9130-228d0e221b1a_a5p0ghy48hknt\LocalState", "user.txt" );
+   public static class PixelPrinterPlugin
+   {
+      private static readonly string _settingsFile = Path.Combine( @"C:\Users\lesna\Documents", "user.txt" );
 
       public static string GetAuthToken()
       {
-         return GetLineOfSettingsFile( 1 );
+         return GetLineOfSettingsFile( 0 );
       }
 
       private static string GetLineOfSettingsFile( int lineIndex )
@@ -17,7 +17,7 @@ namespace NativePlugin
          if ( File.Exists( _settingsFile ) )
          {
             var fileText = File.ReadAllLines( _settingsFile ).ToList();
-            if ( fileText.Count() >= 2 )
+            if ( fileText.Count() > lineIndex )
             {
                if ( !string.IsNullOrEmpty( fileText[lineIndex] ) )
                {

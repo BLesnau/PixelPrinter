@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -42,42 +43,46 @@ namespace Harness
       {
          try
          {
-            if ( IsTokenExpired( GetAuthToken() ) )
+            if ( IsTokenExpired( await GetAuthToken() ) )
             {
                var dlg = new MessageDialog( "TOKEN EXPIRED - LOGGING IN AGAIN" );
                await dlg.ShowAsync();
 
                DeleteSettingsFile();
+
+               await Login();
+            }
+            else
+            {
+               var dlg = new MessageDialog( "VALID TOKEN" );
+               await dlg.ShowAsync();
             }
          }
-         catch { }
-
-         await Login();
+         catch ( Exception ex )
+         {
+            var dlg = new MessageDialog( $"Exception - {ex.Message}" );
+            await dlg.ShowAsync();
+         }
       }
 
       private async Task Login()
       {
-         var authToken = GetAuthToken();
-         var userId = GetUserId();
+         var authToken = await GetAuthToken();
 
          try
          {
-            if ( !string.IsNullOrWhiteSpace( authToken ) && !string.IsNullOrWhiteSpace( userId ) )
-            {
-               _mobileService.CurrentUser = new MobileServiceUser( userId ) { MobileServiceAuthenticationToken = authToken };
+            //if ( !string.IsNullOrWhiteSpace( authToken ) && !string.IsNullOrWhiteSpace( userId ) )
+            //{
+            //_mobileService.CurrentUser = new MobileServiceUser( userId ) { MobileServiceAuthenticationToken = authToken };
 
-               var dlg = new MessageDialog( "ALREADY SIGNED IN" );
-               await dlg.ShowAsync();
-            }
-            else
+            //var dlg = new MessageDialog( "ALREADY SIGNED IN" );
+            //await dlg.ShowAsync();
+            //}
+            //else
             {
-               var strToSplit = await PixelPrinterPlugin.GetAuthToken( _environment );
-               var splitStr = strToSplit.Split( ',' );
-               authToken = splitStr[0];
-               userId = splitStr[1];
-               var uniqueId = GetJToken( authToken )["stable_sid"].ToString();
+               authToken = await PixelPrinterPlugin.GetAuthToken( _environment );
 
-               await SaveSettings( userId, authToken );
+               await SaveSettings( authToken );
 
                var dlg = new MessageDialog( "SIGNED IN" );
                await dlg.ShowAsync();
@@ -86,8 +91,6 @@ namespace Harness
          catch { }
 
          var dlg2 = new MessageDialog( authToken );
-         await dlg2.ShowAsync();
-         dlg2 = new MessageDialog( userId );
          await dlg2.ShowAsync();
       }
 
@@ -202,18 +205,42 @@ namespace Harness
          return expire < DateTime.UtcNow ? true : false;
       }
 
-      private string GetUserId()
+      private async Task<string> GetAuthToken()
       {
-         return GetLineOfSettingsFile( 0 );
+         return await GetLineOfSettingsFile( 0 );
       }
 
-      private string GetAuthToken()
+      private async Task<string> GetLineOfSettingsFile( int lineIndex )
       {
-         return GetLineOfSettingsFile( 1 );
-      }
+         var openPicker = new Windows.Storage.Pickers.FileOpenPicker();
+         openPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+         openPicker.FileTypeFilter.Add( ".txt" );
 
-      private string GetLineOfSettingsFile( int lineIndex )
-      {
+         StorageFile file = await openPicker.PickSingleFileAsync();
+         if ( file != null )
+         {
+            // Prevent updates to the remote version of the file until
+            // we finish making changes and call CompleteUpdatesAsync.
+            CachedFileManager.DeferUpdates( file );
+            // write to file
+            var lines = await FileIO.ReadLinesAsync( file );
+            // Let Windows know that we're finished changing the file so
+            // the other app can update the remote version of the file.
+            // Completing updates may require Windows to ask for user input.
+            Windows.Storage.Provider.FileUpdateStatus status = await Windows.Storage.CachedFileManager.CompleteUpdatesAsync( file );
+            if ( status == Windows.Storage.Provider.FileUpdateStatus.Complete )
+            {
+               if ( lines.Count > lineIndex )
+               {
+                  return lines[lineIndex];
+               }
+               else
+               {
+                  return string.Empty;
+               }
+            }
+         }
+
          if ( File.Exists( _settingsFile ) )
          {
             var fileText = File.ReadLines( _settingsFile ).ToList();
@@ -237,9 +264,30 @@ namespace Harness
          }
       }
 
-      private async Task SaveSettings( string userId, string authToken )
+      private async Task SaveSettings( string authToken )
       {
-         await Task.Run( () => File.WriteAllLines( _settingsFile, new string[] { userId, authToken } ) );
+         var savePicker = new Windows.Storage.Pickers.FileSavePicker();
+         savePicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+         savePicker.FileTypeChoices.Add( "Plain Text", new List<string>() { ".txt" } );
+         savePicker.SuggestedFileName = "user";
+
+         StorageFile file = await savePicker.PickSaveFileAsync();
+         if ( file != null )
+         {
+            // Prevent updates to the remote version of the file until
+            // we finish making changes and call CompleteUpdatesAsync.
+            CachedFileManager.DeferUpdates( file );
+            // write to file
+            await FileIO.WriteLinesAsync( file, new string[] { authToken } );
+            // Let Windows know that we're finished changing the file so
+            // the other app can update the remote version of the file.
+            // Completing updates may require Windows to ask for user input.
+            Windows.Storage.Provider.FileUpdateStatus status = await Windows.Storage.CachedFileManager.CompleteUpdatesAsync( file );
+            if ( status == Windows.Storage.Provider.FileUpdateStatus.Complete )
+            {
+               // Nothing for now
+            }
+         }
       }
    }
 }

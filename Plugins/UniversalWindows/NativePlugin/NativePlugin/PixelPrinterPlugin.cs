@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Windows.Networking.NetworkOperators;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Microsoft.WindowsAzure.MobileServices;
 
 namespace NativePlugin
@@ -35,8 +32,8 @@ namespace NativePlugin
             mobileService.AlternateLoginHost = new Uri( GetServiceUrl( TargetEnvironment.Live ) );
             var user = await mobileService.LoginAsync( MobileServiceAuthenticationProvider.Google );
 
-            //return user.MobileServiceAuthenticationToken;
-            return string.Join( ",", new string[] { user.MobileServiceAuthenticationToken, user.UserId } );
+            return user.MobileServiceAuthenticationToken;
+            //return string.Join( ",", new string[] { user.MobileServiceAuthenticationToken, user.UserId } );
          }
          catch ( Exception ex )
          {

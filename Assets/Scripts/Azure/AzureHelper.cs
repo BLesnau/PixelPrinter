@@ -27,7 +27,6 @@ public class AzureHelper
 #if UNITY_EDITOR
             authToken = PixelPrinterPlugin.GetAuthToken();
             //DebugHelper.Log( "Auth Token", authToken );
-            loginListener.LoginCompleted( true );
 #endif
          }
          else if ( UnityHelper.IsUWP() )
@@ -37,9 +36,8 @@ public class AzureHelper
             {
                UnityEngine.WSA.Application.InvokeOnUIThread( async () =>
                {
-                  authToken = await PixelPrinterPlugin.GetAuthToken();
+                  authToken = await PixelPrinterPlugin.GetAuthToken( TargetEnvironment.Local );
                   //DebugHelper.Log( "Auth Token", authToken );
-                  loginListener.LoginCompleted( !string.IsNullOrEmpty( authToken ) ? true : false );
                }, true );
             }
             catch ( Exception ex )
@@ -48,42 +46,59 @@ public class AzureHelper
             }
 #endif
          }
-         else
-         {
-            authToken = SettingsManager.GetSetting( SettingsManager.StringSetting.AuthToken );
-         }
       }
+
+      SettingsManager.SetSetting( SettingsManager.StringSetting.AuthToken, authToken );
+
+      try
+      {
+         CheckTokenExpiration();
+      }
+      catch ( AuthenticationExpiredException )
+      {
+         authToken = string.Empty;
+      }
+
+      loginListener.LoginCompleted( !string.IsNullOrEmpty( authToken ) );
    }
 
    public static User GetUser()
    {
-      CheckTokenExpiration();
-
-      var client = new RestClient( _serviceUrl );
-
-      var request = new RestRequest( "tables/User", Method.GET ) { RequestFormat = DataFormat.Json };
-
-      request.AddHeader( "X-ZUMO-AUTH", SettingsManager.GetSetting( SettingsManager.StringSetting.AuthToken ) );
-
-      var user = new User();
-      bool threadDone = false;
-      bool gotUser = false;
-
-      client.ExecuteAsync( request, response =>
+      try
       {
-         gotUser = user.Deserialize( response.Content );
-         threadDone = true;
-      } );
+         CheckTokenExpiration();
 
-      while ( !threadDone )
-      { }
+         var client = new RestClient( _serviceUrl );
 
-      if ( gotUser )
+         var request = new RestRequest( "tables/User", Method.GET ) { RequestFormat = DataFormat.Json };
+
+         request.AddHeader( "X-ZUMO-AUTH", SettingsManager.GetSetting( SettingsManager.StringSetting.AuthToken ) );
+
+         var user = new User();
+         bool threadDone = false;
+         bool gotUser = false;
+
+         client.ExecuteAsync( request, response =>
+         {
+            gotUser = user.Deserialize( response.Content );
+            threadDone = true;
+         } );
+
+         while ( !threadDone )
+         {
+         }
+
+         if ( gotUser )
+         {
+            return user;
+         }
+      }
+      catch ( AuthenticationExpiredException )
       {
-         return user;
+         throw new AzureErrorException();
       }
 
-      throw new AzureErrorException();
+      return null;
    }
 
    private static void CheckTokenExpiration()
