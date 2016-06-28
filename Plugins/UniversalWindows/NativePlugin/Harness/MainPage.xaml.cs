@@ -60,8 +60,12 @@ namespace Harness
          }
          catch ( Exception ex )
          {
-            var dlg = new MessageDialog( $"Exception - {ex.Message}" );
+            var dlg = new MessageDialog( "TOKEN EXPIRED - LOGGING IN AGAIN" );
             await dlg.ShowAsync();
+
+            DeleteSettingsFile();
+
+            await Login();
          }
       }
 
@@ -150,6 +154,11 @@ namespace Harness
 
       private JObject GetJToken( string token )
       {
+         if ( string.IsNullOrWhiteSpace( token ) )
+         {
+            return null;
+         }
+
          var jwt = token.Split( new Char[] { '.' } )[1];
 
          // Undo the URL encoding.

@@ -70,9 +70,6 @@
     <Reference Include="Pathfinding.JsonFx">
       <HintPath>Assets\Plugins\Pathfinding.JsonFx.dll</HintPath>
     </Reference>
-    <Reference Include="UnityRestClient">
-      <HintPath>Assets\Plugins\UnityRestClient.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\ActionStack\ActionStack.cs" />
@@ -96,6 +93,7 @@
     <Compile Include="Assets\Scripts\Camera\SmoothMouseLook.cs" />
     <Compile Include="Assets\Scripts\Debug\DebugHelper.cs" />
     <Compile Include="Assets\Scripts\ExtensionMethods.cs" />
+    <Compile Include="Assets\Scripts\Extensions\StringExtensions.cs" />
     <Compile Include="Assets\Scripts\Input\InputManager.cs" />
     <Compile Include="Assets\Scripts\MathHelper.cs" />
     <Compile Include="Assets\Scripts\Path.cs" />
@@ -418,6 +416,58 @@
     <Compile Include="Assets\Scripts\Plugins\JsonDotNet\Source\WinRT\Utilities\RT_ThreadSafeStore.cs" />
     <Compile Include="Assets\Scripts\Plugins\JsonDotNet\Source\WinRT\Utilities\RT_TypeExtensions.cs" />
     <Compile Include="Assets\Scripts\Plugins\JsonDotNet\Source\WinRT\Utilities\RT_ValidationUtils.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Deserializers\DeserializeAsAttribute.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Deserializers\DotNetXmlDeserializer.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Deserializers\IDeserializer.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Deserializers\JsonDeserializer.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Deserializers\XmlAttributeDeserializer.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Deserializers\XmlDeserializer.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Enum.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Extensions\MiscExtensions.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Extensions\MonoHttp\Helpers.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Extensions\MonoHttp\HtmlEncoder.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Extensions\MonoHttp\HttpUtility.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Extensions\ReflectionExtensions.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Extensions\ResponseExtensions.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Extensions\StringExtensions.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Extensions\XmlExtensions.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\FileParameter.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Http.Async.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Http.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\HttpCookie.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\HttpFile.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\HttpHeader.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\HttpParameter.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\HttpResponse.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\IHttp.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\IHttpFactory.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\IHttpResponse.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\IRestClient.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\IRestRequest.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\IRestResponse.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Parameter.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\RestClient.Async.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\RestClient.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\RestClientExtensions.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\RestRequest.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\RestRequestAsyncHandle.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\RestResponse.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\RestResponseCookie.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Serializers\DotNetXmlSerializer.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Serializers\ISerializer.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Serializers\JsonSerializer.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Serializers\SerializeAsAttribute.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Serializers\XmlSerializer.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\SharedAssemblyInfo.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\UniversalApps\JsonDeserializerUniversal.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\UniversalApps\JsonSerializerUniversal.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\UniversalApps\RestClientExtensions.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\UniversalApps\RestClientUniversal.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\UniversalApps\RestRequestAsyncHandleUniversal.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\UniversalApps\RestRequestUniversal.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\UniversalApps\RestResponseUniversal.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Validation\Require.cs" />
+    <Compile Include="Assets\Scripts\Plugins\UnityRestClient\Validation\Validate.cs" />
     <Compile Include="Assets\Scripts\Plugins\iTween.cs" />
     <Compile Include="Assets\Scripts\Point.cs" />
     <Compile Include="Assets\Scripts\SettingsManager.cs" />

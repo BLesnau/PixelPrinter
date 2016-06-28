@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using RestSharp.Extensions;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 public class AzureResponseObject
 {

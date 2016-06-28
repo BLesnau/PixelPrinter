@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using RestSharp;
@@ -19,6 +20,8 @@ public class AzureHelper
       try
       {
          CheckTokenExpiration();
+         authToken = SettingsManager.GetSetting( SettingsManager.StringSetting.AuthToken );
+         FinishLogin( authToken, loginListener );
       }
       catch ( AuthenticationExpiredException )
       {
@@ -27,17 +30,22 @@ public class AzureHelper
 #if UNITY_EDITOR
             authToken = PixelPrinterPlugin.GetAuthToken();
             //DebugHelper.Log( "Auth Token", authToken );
+            FinishLogin( authToken, loginListener );
 #endif
          }
          else if ( UnityHelper.IsUWP() )
          {
-#if IS_UWP
+#if UNITY_WSA && !UNITY_EDITOR
             try
             {
                UnityEngine.WSA.Application.InvokeOnUIThread( async () =>
                {
-                  authToken = await PixelPrinterPlugin.GetAuthToken( TargetEnvironment.Local );
+                  authToken = await PixelPrinterPlugin.GetAuthToken( PixelPrinterPlugin.TargetEnvironment.Local );
                   //DebugHelper.Log( "Auth Token", authToken );
+                  UnityEngine.WSA.Application.InvokeOnAppThread( async () =>
+                  {
+                     FinishLogin( authToken, loginListener );
+                  }, true );
                }, true );
             }
             catch ( Exception ex )
@@ -47,19 +55,6 @@ public class AzureHelper
 #endif
          }
       }
-
-      SettingsManager.SetSetting( SettingsManager.StringSetting.AuthToken, authToken );
-
-      try
-      {
-         CheckTokenExpiration();
-      }
-      catch ( AuthenticationExpiredException )
-      {
-         authToken = string.Empty;
-      }
-
-      loginListener.LoginCompleted( !string.IsNullOrEmpty( authToken ) );
    }
 
    public static User GetUser()
@@ -111,7 +106,17 @@ public class AzureHelper
 
    private static JObject GetJToken( string token )
    {
-      var jwt = token.Split( new Char[] { '.' } )[1];
+      if ( string.IsNullOrEmpty( token ) )
+      {
+         return null;
+      }
+
+      var splitStr = token.Split( new Char[] { '.' } );
+      if ( splitStr.Count() < 2 )
+      {
+         return null;
+      }
+      var jwt = splitStr[1];
 
       // Undo the URL encoding.
       jwt = jwt.Replace( '-', '+' );
@@ -171,5 +176,21 @@ public class AzureHelper
       {
          return true;
       }
+   }
+
+   private static void FinishLogin( string authToken, ILoginListener loginListener )
+   {
+      SettingsManager.SetSetting( SettingsManager.StringSetting.AuthToken, authToken );
+
+      try
+      {
+         CheckTokenExpiration();
+      }
+      catch ( AuthenticationExpiredException )
+      {
+         authToken = string.Empty;
+      }
+
+      loginListener.LoginCompleted( !string.IsNullOrEmpty( authToken ) );
    }
 }

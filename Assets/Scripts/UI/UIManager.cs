@@ -40,6 +40,12 @@ public class UIManager : MonoBehaviour, ILoginListener
       {
          ColorButtons[i].SetColor( Colors[i] );
       }
+
+      var u = SettingsManager.GetSetting( SettingsManager.StringSetting.UserId );
+      SettingsManager.SetSetting( SettingsManager.StringSetting.UserId, "User1" );
+      u = SettingsManager.GetSetting( SettingsManager.StringSetting.UserId );
+      int j = 0;
+      j++;
    }
 
    void Update()
@@ -50,7 +56,7 @@ public class UIManager : MonoBehaviour, ILoginListener
       {
          _splashScreenDone = true;
          AzureHelper.Login( this );
-         AzureHelper.GetUser();
+         var user = AzureHelper.GetUser();   
       }
    }
 

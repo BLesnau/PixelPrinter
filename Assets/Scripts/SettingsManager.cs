@@ -10,20 +10,25 @@ public static class SettingsManager
    public static void SetSetting( StringSetting key, string value )
    {
       PlayerPrefs.SetString( Enum.GetName( key.GetType(), key ), value );
+      PlayerPrefs.Save();
    }
 
    public static void SetSetting( BoolSetting key, bool value )
    {
       PlayerPrefs.SetInt( Enum.GetName( key.GetType(), key ), Convert.ToInt16( value ) );
+      PlayerPrefs.Save();
    }
 
    public static void SetSetting( IntSetting key, int value )
    {
       PlayerPrefs.SetInt( Enum.GetName( key.GetType(), key ), value );
+      PlayerPrefs.Save();
    }
 
    public static string GetSetting( StringSetting key )
    {
+      DebugHelper.Log( "Key Name", Enum.GetName( key.GetType(), key ) );
+      DebugHelper.Log( "Value", PlayerPrefs.GetString( Enum.GetName( key.GetType(), key ) ) );
       return PlayerPrefs.GetString( Enum.GetName( key.GetType(), key ) );
    }
 
