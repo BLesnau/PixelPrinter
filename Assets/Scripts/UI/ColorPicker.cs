@@ -10,13 +10,12 @@ public class ColorPicker : MonoBehaviour
    public Color BackgroundColor = Color.white;
    public Image HueSelector;
    public Image SaturationValueSelector;
-   public CanvasGroup CanvasGroup;
 
    private static float _upperCirclePercent = .95f;
    private static float _lowerCirclePercent = .60f;
    private static float _boxSizePercent = .40f;
    private static int _textureSize = 500;
-   private static Vector2 _middle = new Vector2( ( _textureSize - 1 ) / 2f, ( _textureSize - 1 ) / 2f );
+   private static Vector2 _middle = new Vector2( (_textureSize - 1) / 2f, (_textureSize - 1) / 2f );
 
    private bool _dragHueStarted = false;
    private bool _dragSatValStarted = false;
@@ -40,7 +39,7 @@ public class ColorPicker : MonoBehaviour
       DrawHueCircle();
       DrawSatValBox();
 
-      Hide();
+      HideableUIElement.Hide( gameObject );
    }
 
    private void Update()
@@ -65,7 +64,7 @@ public class ColorPicker : MonoBehaviour
             {
                var distanceFromCenter = Mathf.Sqrt( Mathf.Pow( dx, 2 ) + Mathf.Pow( dy, 2 ) );
                if ( _dragHueStarted ||
-                    ( distanceFromCenter >= circleStartDistance && distanceFromCenter <= circleEndDistance ) )
+                    (distanceFromCenter >= circleStartDistance && distanceFromCenter <= circleEndDistance) )
                {
                   _dragHueStarted = true;
                   MoveHueSelector( localCursor );
@@ -79,8 +78,8 @@ public class ColorPicker : MonoBehaviour
                var boxStart = Convert.ToInt16( -boxSize / 2f );
                var boxRect = new Rect( boxStart, boxStart, boxSize, boxSize );
                if ( _dragSatValStarted ||
-                    ( ( dx >= boxRect.xMin ) && ( dx <= boxRect.xMax ) && ( dy >= boxRect.yMin ) &&
-                      ( dy <= boxRect.yMax ) ) )
+                    ((dx >= boxRect.xMin) && (dx <= boxRect.xMax) && (dy >= boxRect.yMin) &&
+                      (dy <= boxRect.yMax)) )
                {
                   _dragSatValStarted = true;
 
@@ -88,7 +87,7 @@ public class ColorPicker : MonoBehaviour
                }
             }
 
-            _dragOtherStarted = !( _dragHueStarted || _dragSatValStarted );
+            _dragOtherStarted = !(_dragHueStarted || _dragSatValStarted);
          }
       }
       else
@@ -101,18 +100,12 @@ public class ColorPicker : MonoBehaviour
       UpdateSelectedColor();
    }
 
-   public void Show( Color color )
-   {
-      ToggleVisibility( true );
-      SetColor( color );
-   }
-
    public void SetColor( Color color )
    {
       float hue, sat, val;
       Color.RGBToHSV( color, out hue, out sat, out val );
 
-      var hueTheta = ( hue * ( 2 * Mathf.PI ) ) - Mathf.PI;
+      var hueTheta = (hue * (2 * Mathf.PI)) - Mathf.PI;
       MoveHueSelector( new Vector2( Mathf.Cos( hueTheta ), Mathf.Sin( hueTheta ) ), true );
 
       var boxSize = _boxSizePercent * Image.rectTransform.rect.width;
@@ -122,24 +115,6 @@ public class ColorPicker : MonoBehaviour
       MoveSatValSelector( satValPos, boxRect, true );
 
       DrawSatValBox();
-   }
-
-   public void Hide()
-   {
-      ToggleVisibility( false );
-   }
-
-   public bool IsVisible()
-   {
-      return this.enabled;
-   }
-
-   private void ToggleVisibility( bool isVisible )
-   {
-      this.enabled = isVisible;
-      CanvasGroup.alpha = isVisible ? 1 : 0;
-      CanvasGroup.blocksRaycasts = isVisible;
-      CanvasGroup.interactable = isVisible;
    }
 
    private void FillBackground( Color color )
@@ -168,7 +143,7 @@ public class ColorPicker : MonoBehaviour
       for ( int i = 0; i < texture.width * texture.height; i++ )
       {
          var y = i / texture.width;
-         var x = i - ( y * texture.width );
+         var x = i - (y * texture.width);
 
          var dx = x - _middle.x;
          var dy = y - _middle.y;
@@ -177,7 +152,7 @@ public class ColorPicker : MonoBehaviour
          {
             var theta = Mathf.Atan2( dy, dx );
 
-            var hue = ( theta + Mathf.PI ) / ( 2 * Mathf.PI );
+            var hue = (theta + Mathf.PI) / (2 * Mathf.PI);
             var sat = 1f;
             var val = 1f;
             var color = Color.HSVToRGB( hue, sat, val );
@@ -193,7 +168,7 @@ public class ColorPicker : MonoBehaviour
    private void DrawSatValBox()
    {
       var texture = Image.sprite.texture;
-      var hue = ( _hueTheta + Mathf.PI ) / ( 2 * Mathf.PI );
+      var hue = (_hueTheta + Mathf.PI) / (2 * Mathf.PI);
       var boxSize = Convert.ToInt16( _boxSizePercent * _textureSize );
       var boxStart = Convert.ToInt16( _middle.x - boxSize / 2f );
 
@@ -201,12 +176,12 @@ public class ColorPicker : MonoBehaviour
       for ( int i = 0; i < colors.Capacity; i++ )
       {
          var y = i / boxSize;
-         var x = i - ( y * boxSize );
+         var x = i - (y * boxSize);
          float yF = y;
          float xF = x;
 
-         var sat = ( xF ) / ( boxSize + 1 );
-         var val = ( yF ) / ( boxSize + 1 );
+         var sat = (xF) / (boxSize + 1);
+         var val = (yF) / (boxSize + 1);
          var color = Color.HSVToRGB( hue, sat, val );
 
          colors.Add( color );
@@ -219,8 +194,8 @@ public class ColorPicker : MonoBehaviour
    {
       iTween.StopByName( "HueMove" );
 
-      var selectorPosPercent = _lowerCirclePercent + ( ( _upperCirclePercent - _lowerCirclePercent ) / 2f );
-      var selectorDistance = ( selectorPosPercent * Image.rectTransform.rect.width ) / 2f;
+      var selectorPosPercent = _lowerCirclePercent + ((_upperCirclePercent - _lowerCirclePercent) / 2f);
+      var selectorDistance = (selectorPosPercent * Image.rectTransform.rect.width) / 2f;
 
       var selectorPos = MathHelper.FindPoint( Vector2.zero, localCursor, selectorDistance );
       selectorPos.Scale( Image.transform.lossyScale );
@@ -304,7 +279,7 @@ public class ColorPicker : MonoBehaviour
 
       var sat = satValPos.x / boxSizeDim.x;
       var val = satValPos.y / boxSizeDim.y;
-      var hue = ( _hueTheta + Mathf.PI ) / ( 2 * Mathf.PI );
+      var hue = (_hueTheta + Mathf.PI) / (2 * Mathf.PI);
       var color = Color.HSVToRGB( hue, sat, val );
 
       UIManager.SetSelectedColor( color );

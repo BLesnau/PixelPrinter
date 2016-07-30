@@ -23,7 +23,7 @@ public class UIManager : MonoBehaviour, ILoginListener
       Color1, Color2, Color3, Color4, Color5,
       ColorSelect1, ColorSelect2, ColorSelect3, ColorSelect4, ColorSelect5,
       Undo, Redo,
-      Close
+      CloseColorPicker
    }
 
    public enum Tools { Add, Remove, Change }
@@ -40,9 +40,6 @@ public class UIManager : MonoBehaviour, ILoginListener
       {
          ColorButtons[i].SetColor( Colors[i] );
       }
-
-      var p = ColorPicker.transform.position;
-      ColorPicker.transform.localPosition = new Vector3( 0, 0, p.z );
    }
 
    void Update()
@@ -153,9 +150,9 @@ public class UIManager : MonoBehaviour, ILoginListener
             PixelManager.Redo();
             break;
          }
-         case Buttons.Close:
+         case Buttons.CloseColorPicker:
          {
-            ColorPicker.Hide();
+            HideableUIElement.Hide( ColorPicker.gameObject );
             break;
          }
       }
@@ -179,7 +176,8 @@ public class UIManager : MonoBehaviour, ILoginListener
          var args = new Hashtable() { { "position", ColorButtons[colorSelectClickedIndex].transform.position }, { "time", 1 } };
          iTween.MoveTo( ColorSelectBackground, args );
 
-         ColorPicker.Show( GetSelectedColor() );
+         HideableUIElement.Show( ColorPicker.gameObject );
+         ColorPicker.SetColor( GetSelectedColor() );
       }
    }
 
