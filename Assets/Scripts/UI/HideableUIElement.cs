@@ -3,12 +3,22 @@
 public class HideableUIElement : MonoBehaviour
 {
    public CanvasGroup CanvasGroup;
+   public bool StartHidden = true;
 
    private Vector3 _originalPosition;
 
    private void Start()
    {
       _originalPosition = transform.localPosition;
+
+      if(StartHidden)
+      {
+         Hide();
+      }
+      else
+      {
+         Show();
+      }
    }
 
    public void Hide()

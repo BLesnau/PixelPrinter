@@ -38,8 +38,6 @@ public class ColorPicker : MonoBehaviour
       FillBackground( BackgroundColor );
       DrawHueCircle();
       DrawSatValBox();
-
-      HideableUIElement.Hide( gameObject );
    }
 
    private void Update()
