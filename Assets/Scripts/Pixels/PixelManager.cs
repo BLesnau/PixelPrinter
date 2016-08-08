@@ -145,6 +145,11 @@ public class PixelManager : MonoBehaviour
 
    private void Update()
    {
+      if ( UIManager.IsModalActive() )
+      {
+         return;
+      }
+
       //if ( _pixelsToPopIn.Any() )
       //{
       //   _popInTimeElapsed += TimeSpan.FromSeconds( Time.deltaTime );

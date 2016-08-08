@@ -8,14 +8,17 @@ public class UIManager : MonoBehaviour, ILoginListener
 {
    public PixelManager PixelManager;
 
+   public HideableUIElement ModalBlocker;
    public GameObject ToolSelectBackground;
    public GameObject ColorSelectBackground;
    public ColorPicker ColorPicker;
+   public HideableUIElement ImportOrNewSelector;
    public ColorButton[] ColorButtons;
    public Button UndoButton;
    public Button RedoButton;
 
    private bool _splashScreenDone = false;
+   private bool _isModalActive = false;
 
    public enum Buttons
    {
@@ -23,7 +26,8 @@ public class UIManager : MonoBehaviour, ILoginListener
       Color1, Color2, Color3, Color4, Color5,
       ColorSelect1, ColorSelect2, ColorSelect3, ColorSelect4, ColorSelect5,
       Undo, Redo,
-      CloseColorPicker
+      CloseColorPicker,
+      Import, New
    }
 
    public enum Tools { Add, Remove, Change }
@@ -148,11 +152,22 @@ public class UIManager : MonoBehaviour, ILoginListener
          case Buttons.Redo:
          {
             PixelManager.Redo();
+            ImportOrNewSelector.Show();
             break;
          }
          case Buttons.CloseColorPicker:
          {
             HideableUIElement.Hide( ColorPicker.gameObject );
+            break;
+         }
+         case Buttons.Import:
+         {
+            ImportOrNewSelector.Hide();
+            break;
+         }
+         case Buttons.New:
+         {
+            ImportOrNewSelector.Hide();
             break;
          }
       }
@@ -178,6 +193,7 @@ public class UIManager : MonoBehaviour, ILoginListener
 
          HideableUIElement.Show( ColorPicker.gameObject );
          ColorPicker.SetColor( GetSelectedColor() );
+         ColorButtons[colorSelectClickedIndex].transform.parent.SetAsLastSibling();
       }
    }
 
@@ -202,5 +218,22 @@ public class UIManager : MonoBehaviour, ILoginListener
    public void LoginCompleted( bool succeeded )
    {
       DebugHelper.Log( "Login Status", succeeded.ToString() );
+   }
+
+   public void StartModal()
+   {
+      _isModalActive = true;
+      ModalBlocker.Show();
+   }
+
+   public void StopModal()
+   {
+      ModalBlocker.Hide();
+      _isModalActive = false;
+   }
+
+   public bool IsModalActive()
+   {
+      return _isModalActive;
    }
 }

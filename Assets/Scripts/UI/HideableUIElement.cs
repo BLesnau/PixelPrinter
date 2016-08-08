@@ -3,15 +3,19 @@
 public class HideableUIElement : MonoBehaviour
 {
    public CanvasGroup CanvasGroup;
+   public UIManager UIManager;
    public bool StartHidden = true;
+   public bool Modal = true;
 
    private Vector3 _originalPosition;
+   private float _originalAlpha;
 
    private void Start()
    {
       _originalPosition = transform.localPosition;
+      _originalAlpha = CanvasGroup.alpha;
 
-      if(StartHidden)
+      if ( StartHidden )
       {
          Hide();
       }
@@ -25,11 +29,22 @@ public class HideableUIElement : MonoBehaviour
    {
       transform.localPosition = _originalPosition;
       ToggleVisibility( false );
+
+      if ( Modal )
+      {
+         UIManager.StopModal();
+      }
    }
 
    public void Show()
    {
+      if ( Modal )
+      {
+         UIManager.StartModal();
+      }
+
       transform.localPosition = new Vector3( 0, 0, _originalPosition.z );
+      transform.SetAsLastSibling();
       ToggleVisibility( true );
    }
 
@@ -41,7 +56,7 @@ public class HideableUIElement : MonoBehaviour
    private void ToggleVisibility( bool isVisible )
    {
       this.enabled = isVisible;
-      CanvasGroup.alpha = isVisible ? 1 : 0;
+      CanvasGroup.alpha = isVisible ? _originalAlpha : 0;
       CanvasGroup.blocksRaycasts = isVisible;
       CanvasGroup.interactable = isVisible;
    }
