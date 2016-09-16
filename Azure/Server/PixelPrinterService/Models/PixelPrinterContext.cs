@@ -24,6 +24,7 @@ namespace PixelPrinterService.Models
 
         public DbSet<TodoItem> TodoItems { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Figure> Figures { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

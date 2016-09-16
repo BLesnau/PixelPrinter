@@ -156,10 +156,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\Startup.MobileApp.cs" />
+    <Compile Include="Controllers\FigureController.cs" />
     <Compile Include="Controllers\TodoItemController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="DataObjects\TodoItem.cs" />
+    <Compile Include="DataObjects\Figure.cs" />
     <Compile Include="DataObjects\User.cs" />
     <Compile Include="Migrations\201604200451582_InitialCreate.cs" />
     <Compile Include="Migrations\201604200451582_InitialCreate.Designer.cs">
@@ -172,6 +174,14 @@
     <Compile Include="Migrations\201604210407389_IndexUsers.cs" />
     <Compile Include="Migrations\201604210407389_IndexUsers.Designer.cs">
       <DependentUpon>201604210407389_IndexUsers.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201609142209360_AddFigures.cs" />
+    <Compile Include="Migrations\201609142209360_AddFigures.Designer.cs">
+      <DependentUpon>201609142209360_AddFigures.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201609160316042_AddFigureThumb.cs" />
+    <Compile Include="Migrations\201609160316042_AddFigureThumb.Designer.cs">
+      <DependentUpon>201609160316042_AddFigureThumb.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\PixelPrinterContext.cs" />
@@ -204,6 +214,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201604210407389_IndexUsers.resx">
       <DependentUpon>201604210407389_IndexUsers.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201609142209360_AddFigures.resx">
+      <DependentUpon>201609142209360_AddFigures.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201609160316042_AddFigureThumb.resx">
+      <DependentUpon>201609160316042_AddFigureThumb.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
