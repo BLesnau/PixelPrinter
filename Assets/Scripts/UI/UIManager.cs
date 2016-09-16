@@ -53,8 +53,12 @@ public class UIManager : MonoBehaviour, ILoginListener
       if ( !Application.isShowingSplashScreen && !_splashScreenDone )
       {
          _splashScreenDone = true;
+         StartModal();
          AzureHelper.Login( this );
+         StopModal();
          var user = AzureHelper.GetUser();
+
+         ImportOrNewSelector.Show();
       }
    }
 
@@ -152,7 +156,6 @@ public class UIManager : MonoBehaviour, ILoginListener
          case Buttons.Redo:
          {
             PixelManager.Redo();
-            ImportOrNewSelector.Show();
             break;
          }
          case Buttons.CloseColorPicker:
