@@ -13,15 +13,26 @@ public class AzureHelper
       "http://desktop-or80phq/PixelPrinterService";
    //"https://pixelprinter.azurewebsites.net";
 
-   public static void Login( ILoginListener loginListener )
+   private static ILoginListener _loginListener;
+
+   public static void SetListener( ILoginListener loginListener )
    {
-      var authToken = string.Empty;
+      _loginListener = loginListener;
+   }
+
+   public static void Login()
+   {
+      var authToken = SettingsManager.GetSetting( SettingsManager.StringSetting.AuthToken );
+
+      if ( IsLoggedIn() )
+      {
+         FinishLogin( authToken );
+         return;
+      }
 
       try
       {
-         CheckTokenExpiration();
-         authToken = SettingsManager.GetSetting( SettingsManager.StringSetting.AuthToken );
-         FinishLogin( authToken, loginListener );
+         CheckTokenExpiration( authToken );
       }
       catch ( AuthenticationExpiredException )
       {
@@ -30,7 +41,7 @@ public class AzureHelper
 #if UNITY_EDITOR
             authToken = PixelPrinterPlugin.GetAuthToken();
             //DebugHelper.Log( "Auth Token", authToken );
-            FinishLogin( authToken, loginListener );
+            FinishLogin( authToken );
 #endif
          }
          else if ( UnityHelper.IsUWP() )
@@ -44,7 +55,7 @@ public class AzureHelper
                   //DebugHelper.Log( "Auth Token", authToken );
                   UnityEngine.WSA.Application.InvokeOnAppThread( async () =>
                   {
-                     FinishLogin( authToken, loginListener );
+                     FinishLogin( authToken );
                   }, true );
                }, true );
             }
@@ -57,11 +68,26 @@ public class AzureHelper
       }
    }
 
+   public static bool IsLoggedIn()
+   {
+      try
+      {
+         CheckTokenExpiration( SettingsManager.GetSetting( SettingsManager.StringSetting.AuthToken ) );
+         return true;
+      }
+      catch { }
+
+      return false;
+   }
+
    public static User GetUser()
    {
       try
       {
-         CheckTokenExpiration();
+         if ( !IsLoggedIn() )
+         {
+            Login();
+         }
 
          var client = new RestClient( _serviceUrl );
 
@@ -96,9 +122,9 @@ public class AzureHelper
       return null;
    }
 
-   private static void CheckTokenExpiration()
+   private static void CheckTokenExpiration( string authToken )
    {
-      if ( IsTokenExpired( SettingsManager.GetSetting( SettingsManager.StringSetting.AuthToken ) ) )
+      if ( IsTokenExpired( authToken ) )
       {
          throw new AuthenticationExpiredException();
       }
@@ -178,19 +204,24 @@ public class AzureHelper
       }
    }
 
-   private static void FinishLogin( string authToken, ILoginListener loginListener )
+   private static void FinishLogin( string authToken )
    {
       SettingsManager.SetSetting( SettingsManager.StringSetting.AuthToken, authToken );
 
       try
       {
-         CheckTokenExpiration();
+         CheckTokenExpiration( authToken );
       }
       catch ( AuthenticationExpiredException )
       {
          authToken = string.Empty;
       }
 
-      loginListener.LoginCompleted( !string.IsNullOrEmpty( authToken ) );
+      SettingsManager.SetSetting( SettingsManager.StringSetting.AuthToken, authToken );
+
+      if ( _loginListener != null )
+      {
+         _loginListener.LoginCompleted();
+      }
    }
 }

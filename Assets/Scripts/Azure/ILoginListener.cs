@@ -1,4 +1,4 @@
 ﻿public interface ILoginListener
 {
-   void LoginCompleted( bool succeeded );
+   void LoginCompleted();
 }

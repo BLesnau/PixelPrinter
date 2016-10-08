@@ -13,12 +13,16 @@ public class UIManager : MonoBehaviour, ILoginListener
    public GameObject ColorSelectBackground;
    public ColorPicker ColorPicker;
    public HideableUIElement ImportOrNewSelector;
+   public HideableUIElement LoginErrorDialog;
    public ColorButton[] ColorButtons;
    public Button UndoButton;
    public Button RedoButton;
 
    private bool _splashScreenDone = false;
    private bool _isModalActive = false;
+
+   private enum UIState { InitialLogin, LoggedIn }
+   private UIState _uiState = UIState.InitialLogin;
 
    public enum Buttons
    {
@@ -27,7 +31,8 @@ public class UIManager : MonoBehaviour, ILoginListener
       ColorSelect1, ColorSelect2, ColorSelect3, ColorSelect4, ColorSelect5,
       Undo, Redo,
       CloseColorPicker,
-      Import, New
+      Import, New,
+      Login
    }
 
    public enum Tools { Add, Remove, Change }
@@ -40,6 +45,8 @@ public class UIManager : MonoBehaviour, ILoginListener
 
    void Start()
    {
+      AzureHelper.SetListener( this );
+
       for ( int i = 0; i < ColorButtons.Count(); i++ )
       {
          ColorButtons[i].SetColor( Colors[i] );
@@ -54,11 +61,17 @@ public class UIManager : MonoBehaviour, ILoginListener
       {
          _splashScreenDone = true;
          StartModal();
-         AzureHelper.Login( this );
-         StopModal();
-         var user = AzureHelper.GetUser();
 
-         ImportOrNewSelector.Show();
+         AzureHelper.Login();
+
+         //if ( !AzureHelper.IsLoggedIn() )
+         //{
+         //   AzureHelper.Login();
+         //}
+         //else
+         //{
+         //   StartEverything();
+         //}
       }
    }
 
@@ -173,6 +186,16 @@ public class UIManager : MonoBehaviour, ILoginListener
             ImportOrNewSelector.Hide();
             break;
          }
+         case Buttons.Login:
+         {
+            AzureHelper.Login();
+            if ( AzureHelper.IsLoggedIn() )
+            {
+               LoginErrorDialog.Hide();
+               StopModal();
+            }
+            break;
+         }
       }
 
       if ( toolClicked )
@@ -218,9 +241,43 @@ public class UIManager : MonoBehaviour, ILoginListener
       RedoButton.GetComponent<Button>().interactable = PixelManager.CanRedo();
    }
 
-   public void LoginCompleted( bool succeeded )
+   public void LoginCompleted()
    {
-      DebugHelper.Log( "Login Status", succeeded.ToString() );
+      StopModal();
+
+      if ( !AzureHelper.IsLoggedIn() )
+      {
+         StartModal();
+         LoginErrorDialog.Show();
+      }
+      else
+      {
+         switch ( _uiState )
+         {
+            case UIState.InitialLogin:
+            {
+               StartEverything();
+
+               _uiState = UIState.LoggedIn;
+               break;
+            }
+            //case UIState.LoggedIn:
+            //{
+            //}
+            default:
+            {
+               break;
+            }
+         }
+      }
+   }
+
+   public void StartEverything()
+   {
+      var user = AzureHelper.GetUser();
+
+      StartModal();
+      ImportOrNewSelector.Show();
    }
 
    public void StartModal()
@@ -238,5 +295,12 @@ public class UIManager : MonoBehaviour, ILoginListener
    public bool IsModalActive()
    {
       return _isModalActive;
+   }
+
+   public void ShowLoginError( Action continueCode )
+   {
+      StartModal();
+
+      LoginErrorDialog.Show();
    }
 }
