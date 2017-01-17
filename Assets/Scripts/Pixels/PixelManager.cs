@@ -16,7 +16,7 @@ public class PixelManager : MonoBehaviour
    //public float popInDelaySeconds = .1f;
    //public bool animatePopIn = true;
 
-   private PixelConfig[,,] _pixels = null;
+   private PixelFigure _pixelFigure = null;
    private List<PixelConfig> _placeablePixels = null;
    private ActionStack _actionStack = null;
    //private int _poppedInCount = 0;
@@ -32,7 +32,7 @@ public class PixelManager : MonoBehaviour
       _actionStack = new ActionStack();
       //_audio = GetComponent<AudioSource>();
 
-      _pixels = new PixelConfig[ColCount, RowCount, DepthCount];
+      _pixelFigure = new PixelFigure( ColCount, RowCount, DepthCount );
       _placeablePixels = new List<PixelConfig>();
 
       var startZ = -1 * (((DepthCount * PixelScale) / 2.0f) - (PixelScale / 2.0f));
@@ -106,7 +106,7 @@ public class PixelManager : MonoBehaviour
          }
       }
 
-      _pixels[ColCount / 2, RowCount / 2, DepthCount / 2].Color = Color.red;
+      _pixelFigure.GetPixel( ColCount / 2, RowCount / 2, DepthCount / 2 ).Color = Color.red;
 
       //if ( !animatePopIn )
       //{
@@ -116,9 +116,9 @@ public class PixelManager : MonoBehaviour
          {
             for ( var z = 0; z < DepthCount; z++ )
             {
-               if ( _pixels[x, y, z].Color.a > 0 )
+               if ( _pixelFigure.GetPixel( x, y, z ).Color.a > 0 )
                {
-                  PopIn( _pixels[x, y, z] );
+                  PopIn( _pixelFigure.GetPixel( x, y, z ) );
                }
             }
          }
@@ -140,7 +140,7 @@ public class PixelManager : MonoBehaviour
          Prefab = null
       };
 
-      _pixels[x, y, z] = pixelConfig;
+      _pixelFigure.SetPixel( x, y, z, pixelConfig );
    }
 
    private void Update()
@@ -289,7 +289,7 @@ public class PixelManager : MonoBehaviour
                for ( var z = 0; z < DepthCount; z++ )
                {
                   // Current pixel is visible
-                  if ( _pixels[x, y, z].Color.a > 0 )
+                  if ( _pixelFigure.GetPixel( x, y, z ).Color.a > 0 )
                   {
                      //Loop through all surrounding pixels
                      for ( var x2 = x - 1; x2 <= x + 1; x2++ )
@@ -309,7 +309,7 @@ public class PixelManager : MonoBehaviour
                                  // Pixel is not diagonal
                                  if ( equalAmount >= 2 )
                                  {
-                                    var pixel = _pixels[x2, y2, z2];
+                                    var pixel = _pixelFigure.GetPixel( x2, y2, z2 );
 
                                     // Already was a placeable pixel
                                     if ( !_placeablePixels.Contains( pixel ) )
@@ -333,18 +333,13 @@ public class PixelManager : MonoBehaviour
       }
    }
 
-   private PixelConfig GetPixelConfigFromPrefab( Pixel prefab )
-   {
-      return _pixels.Cast<PixelConfig>().FirstOrDefault( p => p.Prefab == prefab );
-   }
-
    private IEnumerable<PixelConfig> ConvertToPixels( RaycastHit[] hits )
    {
       var hitList = hits.ToList();
       return hitList.Select( h =>
       {
          var pixel = h.transform.gameObject.GetComponent<Pixel>();
-         return GetPixelConfigFromPrefab( pixel );
+         return _pixelFigure.GetPixelConfigFromPrefab( pixel );
       } );
    }
 

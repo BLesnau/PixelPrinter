@@ -100,6 +100,7 @@
     <Compile Include="Assets\Scripts\MathHelper.cs" />
     <Compile Include="Assets\Scripts\Path.cs" />
     <Compile Include="Assets\Scripts\Pixels\GridOverlay.cs" />
+    <Compile Include="Assets\Scripts\Pixels\PixelFigure.cs" />
     <Compile Include="Assets\Scripts\Pixels\Pixel.cs" />
     <Compile Include="Assets\Scripts\Pixels\PixelConfig.cs" />
     <Compile Include="Assets\Scripts\Pixels\PixelManager.cs" />
