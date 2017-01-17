@@ -477,7 +477,6 @@
     <Compile Include="Assets\Scripts\UI\ColorButton.cs" />
     <Compile Include="Assets\Scripts\UI\ColorPicker.cs" />
     <Compile Include="Assets\Scripts\UI\HideableUIElement.cs" />
-    <Compile Include="Assets\Scripts\UI\LoginErrorDialog.cs" />
     <Compile Include="Assets\Scripts\UI\ShowFPS.cs" />
     <Compile Include="Assets\Scripts\UI\UIButton.cs" />
     <Compile Include="Assets\Scripts\UI\UIManager.cs" />
