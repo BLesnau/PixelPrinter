@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -32,7 +33,7 @@ public class PixelManager : MonoBehaviour
       _actionStack = new ActionStack();
       //_audio = GetComponent<AudioSource>();
 
-      _pixelFigure = new PixelFigure( ColCount, RowCount, DepthCount );
+      _pixelFigure = new PixelFigure( ColCount, RowCount, DepthCount, Guid.NewGuid() );
       _placeablePixels = new List<PixelConfig>();
 
       var startZ = -1 * (((DepthCount * PixelScale) / 2.0f) - (PixelScale / 2.0f));
@@ -236,6 +237,7 @@ public class PixelManager : MonoBehaviour
             if ( action != null )
             {
                _actionStack.AddAction( action );
+               _pixelFigure.SaveState();
             }
          }
       }
