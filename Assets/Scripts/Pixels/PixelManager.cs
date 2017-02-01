@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -31,91 +32,75 @@ public class PixelManager : MonoBehaviour
    private void Start()
    {
       _actionStack = new ActionStack();
+      _placeablePixels = new List<PixelConfig>();
+   }
+
+   private void Reset()
+   {
+      _actionStack = new ActionStack();
       //_audio = GetComponent<AudioSource>();
 
-      _pixelFigure = new PixelFigure( ColCount, RowCount, DepthCount, Guid.NewGuid() );
-      _placeablePixels = new List<PixelConfig>();
-
-      var startZ = -1 * (((DepthCount * PixelScale) / 2.0f) - (PixelScale / 2.0f));
-      var startX = -1 * (((ColCount * PixelScale) / 2.0f) - (PixelScale / 2.0f));
-      var startY = -1 * (((RowCount * PixelScale) / 2.0f) - (PixelScale / 2.0f));
-
-      if ( PixelPrefab )
+      if ( _pixelFigure != null )
       {
-         for ( int y = 0; y < RowCount; y++ )
-         {
-            var itemsLeft = (ColCount) * (DepthCount);
-            int x = 0;
-            int z = 0;
-            while ( itemsLeft > 0 )
-            {
-               int xStartIndex = x;
-               int zStartIndex = z;
-
-               while ( x < ColCount - xStartIndex )
-               {
-                  AddPixelToPopIn( x, y, z, startX, startY, startZ );
-                  x++;
-                  itemsLeft--;
-               }
-               x--;
-
-               if ( itemsLeft <= 0 )
-               {
-                  break;
-               }
-
-               z++;
-               while ( z < DepthCount - zStartIndex )
-               {
-                  AddPixelToPopIn( x, y, z, startX, startY, startZ );
-                  z++;
-                  itemsLeft--;
-               }
-               z--;
-
-               if ( itemsLeft <= 0 )
-               {
-                  break;
-               }
-
-               x--;
-               while ( x >= xStartIndex )
-               {
-                  AddPixelToPopIn( x, y, z, startX, startY, startZ );
-                  x--;
-                  itemsLeft--;
-               }
-               x++;
-
-               if ( itemsLeft <= 0 )
-               {
-                  break;
-               }
-
-               z--;
-               while ( z >= zStartIndex + 1 )
-               {
-                  AddPixelToPopIn( x, y, z, startX, startY, startZ );
-                  z--;
-                  itemsLeft--;
-               }
-
-               x = xStartIndex + 1;
-               z = zStartIndex + 1;
-            }
-         }
+         _pixelFigure.Unload();
       }
 
-      _pixelFigure.GetPixel( ColCount / 2, RowCount / 2, DepthCount / 2 ).Color = Color.red;
+      foreach ( var pixel in _placeablePixels )
+      {
+         pixel.Unload();
+      }
+      _placeablePixels = new List<PixelConfig>();
+   }
 
+   public void New()
+   {
+      Reset();
+
+      _pixelFigure = new PixelFigure( ColCount, RowCount, DepthCount );
+
+      //_pixelFigure.InitializePixels();
+
+      _pixelFigure.GetPixel( _pixelFigure.ColCount / 2, _pixelFigure.RowCount / 2, _pixelFigure.DepthCount / 2 ).Color = Color.red;
+
+      PopInAllPixels();
+
+      DetectPlaceablePixels();
+   }
+
+   public void Import()
+   {
+      Reset();
+
+      var files = Directory.GetFiles( Application.persistentDataPath );
+      if ( files.Count() > 0 )
+      {
+         if ( files[0] != null )
+         {
+            var size = PixelFigure.GetSize( new Guid( Path.GetFileNameWithoutExtension( files[0] ) ) );
+            ColCount = Convert.ToInt16( size.x );
+            RowCount = Convert.ToInt16( size.y );
+            DepthCount = Convert.ToInt16( size.z );
+
+            _pixelFigure = new PixelFigure( new Guid( Path.GetFileNameWithoutExtension( files[0] ) ) );
+
+           // InitializePixels();
+
+            PopInAllPixels();
+
+            DetectPlaceablePixels();
+         }
+      }
+   }
+
+   private void PopInAllPixels()
+   {
       //if ( !animatePopIn )
       //{
-      for ( var x = 0; x < ColCount; x++ )
+      for ( var x = 0; x < _pixelFigure.ColCount; x++ )
       {
-         for ( var y = 0; y < RowCount; y++ )
+         for ( var y = 0; y < _pixelFigure.RowCount; y++ )
          {
-            for ( var z = 0; z < DepthCount; z++ )
+            for ( var z = 0; z < _pixelFigure.DepthCount; z++ )
             {
                if ( _pixelFigure.GetPixel( x, y, z ).Color.a > 0 )
                {
@@ -125,23 +110,6 @@ public class PixelManager : MonoBehaviour
          }
       }
       //}
-
-      DetectPlaceablePixels();
-   }
-
-   private void AddPixelToPopIn( int x, int y, int z, float startX, float startY, float startZ )
-   {
-      var pixelConfig = new PixelConfig()
-      {
-         XIndex = x,
-         YIndex = y,
-         ZIndex = z,
-         Position = new Vector3( startX + (x * PixelScale), startY + (y * PixelScale), startZ + (z * PixelScale) ),
-         Color = new Color( 0, 0, 0, 0 ),
-         Prefab = null
-      };
-
-      _pixelFigure.SetPixel( x, y, z, pixelConfig );
    }
 
    private void Update()
@@ -284,11 +252,11 @@ public class PixelManager : MonoBehaviour
       var doIt = true;
       if ( doIt )
       {
-         for ( var x = 0; x < ColCount; x++ )
+         for ( var x = 0; x < _pixelFigure.ColCount; x++ )
          {
-            for ( var y = 0; y < RowCount; y++ )
+            for ( var y = 0; y < _pixelFigure.RowCount; y++ )
             {
-               for ( var z = 0; z < DepthCount; z++ )
+               for ( var z = 0; z < _pixelFigure.DepthCount; z++ )
                {
                   // Current pixel is visible
                   if ( _pixelFigure.GetPixel( x, y, z ).Color.a > 0 )
@@ -301,7 +269,7 @@ public class PixelManager : MonoBehaviour
                            for ( var z2 = z - 1; z2 <= z + 1; z2++ )
                            {
                               // Pixel is within bounding box
-                              if ( x2 >= 0 && y2 >= 0 & z2 >= 0 && x2 < ColCount && y2 < RowCount && z2 < DepthCount )
+                              if ( x2 >= 0 && y2 >= 0 & z2 >= 0 && x2 < _pixelFigure.ColCount && y2 < _pixelFigure.RowCount && z2 < _pixelFigure.DepthCount )
                               {
                                  var equalAmount = 0;
                                  equalAmount += x2 == x ? 1 : 0;
@@ -374,7 +342,7 @@ public class PixelManager : MonoBehaviour
             for ( var z2 = z - 1; z2 <= z + 1; z2++ )
             {
                // Pixel is within bounding box
-               if ( x2 >= 0 && y2 >= 0 & z2 >= 0 && x2 < ColCount && y2 < RowCount && z2 < DepthCount )
+               if ( x2 >= 0 && y2 >= 0 & z2 >= 0 && x2 < _pixelFigure.ColCount && y2 < _pixelFigure.RowCount && z2 < _pixelFigure.DepthCount )
                {
                   var equalAmount = 0;
                   equalAmount += x2 == x ? 1 : 0;

@@ -179,11 +179,13 @@ public class UIManager : MonoBehaviour, ILoginListener
          case Buttons.Import:
          {
             ImportOrNewSelector.Hide();
+            PixelManager.Import();
             break;
          }
          case Buttons.New:
          {
             ImportOrNewSelector.Hide();
+            PixelManager.New();
             break;
          }
          case Buttons.Login:
