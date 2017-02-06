@@ -23,4 +23,12 @@ public class PixelConfig
    }
 
    public Pixel Prefab;
+
+   public void Unload()
+   {
+      if ( Prefab != null )
+      {
+         UnityEngine.Object.Destroy( Prefab );
+      }
+   }
 }
