@@ -70,6 +70,8 @@ public class AzureHelper
 
    public static bool IsLoggedIn()
    {
+      return true;
+
       try
       {
          CheckTokenExpiration( SettingsManager.GetSetting( SettingsManager.StringSetting.AuthToken ) );
