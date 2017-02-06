@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json.Linq;
 using RestSharp;
 #if UNITY_EDITOR || UNITY_WSA
 using NativePlugin;
+using Newtonsoft.Json.Linq;
 #endif
 
 public class AzureHelper
@@ -132,55 +132,55 @@ public class AzureHelper
       }
    }
 
-   private static JObject GetJToken( string token )
+   private static void GetJToken( string token )
    {
-      if ( string.IsNullOrEmpty( token ) )
-      {
-         return null;
-      }
+      //if ( string.IsNullOrEmpty( token ) )
+      //{
+      //   return null;
+      //}
 
-      var splitStr = token.Split( new Char[] { '.' } );
-      if ( splitStr.Count() < 2 )
-      {
-         return null;
-      }
-      var jwt = splitStr[1];
+      //var splitStr = token.Split( new Char[] { '.' } );
+      //if ( splitStr.Count() < 2 )
+      //{
+      //   return null;
+      //}
+      //var jwt = splitStr[1];
 
-      // Undo the URL encoding.
-      jwt = jwt.Replace( '-', '+' );
-      jwt = jwt.Replace( '_', '/' );
-      switch ( jwt.Length % 4 )
-      {
-         case 0:
-         {
-            break;
-         }
-         case 2:
-         {
-            jwt += "==";
-            break;
-         }
-         case 3:
-         {
-            jwt += "=";
+      //// Undo the URL encoding.
+      //jwt = jwt.Replace( '-', '+' );
+      //jwt = jwt.Replace( '_', '/' );
+      //switch ( jwt.Length % 4 )
+      //{
+      //   case 0:
+      //   {
+      //      break;
+      //   }
+      //   case 2:
+      //   {
+      //      jwt += "==";
+      //      break;
+      //   }
+      //   case 3:
+      //   {
+      //      jwt += "=";
 
-            break;
-         }
-         default:
-         {
-            //throw new System.Exception(
-            //   "The base64url string is not valid." );
-            break;
-         }
-      }
+      //      break;
+      //   }
+      //   default:
+      //   {
+      //      //throw new System.Exception(
+      //      //   "The base64url string is not valid." );
+      //      break;
+      //   }
+      //}
 
-      // Decode the bytes from base64 and write to a JSON string.
-      var bytes = Convert.FromBase64String( jwt );
-      string jsonString = UTF8Encoding.UTF8.GetString( bytes, 0, bytes.Length );
+      //// Decode the bytes from base64 and write to a JSON string.
+      //var bytes = Convert.FromBase64String( jwt );
+      //string jsonString = UTF8Encoding.UTF8.GetString( bytes, 0, bytes.Length );
 
-      // Parse as JSON object and get the exp field value, 
-      // which is the expiration date as a JavaScript primative date.
-      return JObject.Parse( jsonString );
+      //// Parse as JSON object and get the exp field value, 
+      //// which is the expiration date as a JavaScript primative date.
+      //return JObject.Parse( jsonString );
    }
 
    private static bool IsTokenExpired( string token )
@@ -189,16 +189,18 @@ public class AzureHelper
       {
          // Parse as JSON object and get the exp field value, 
          // which is the expiration date as a JavaScript primative date.
-         var jsonObj = GetJToken( token );
-         var exp = Convert.ToDouble( jsonObj["exp"].ToString() );
+         //var jsonObj = GetJToken( token );
+         //var exp = Convert.ToDouble( jsonObj["exp"].ToString() );
 
-         // Calculate the expiration by adding the exp value (in seconds) to the 
-         // base date of 1/1/1970.
-         DateTime minTime = new DateTime( 1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc );
-         var expire = minTime.AddSeconds( exp );
+         //// Calculate the expiration by adding the exp value (in seconds) to the 
+         //// base date of 1/1/1970.
+         //DateTime minTime = new DateTime( 1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc );
+         //var expire = minTime.AddSeconds( exp );
 
-         // If the expiration date is less than now, the token is expired and we return true.
-         return expire < DateTime.UtcNow ? true : false;
+         //// If the expiration date is less than now, the token is expired and we return true.
+         //return expire < DateTime.UtcNow ? true : false;
+
+         return false;
       }
       catch
       {
