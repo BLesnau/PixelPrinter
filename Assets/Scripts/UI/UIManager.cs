@@ -62,7 +62,8 @@ public class UIManager : MonoBehaviour, ILoginListener
          _splashScreenDone = true;
          StartModal();
 
-         AzureHelper.Login();
+         //AzureHelper.Login();
+         LoginCompleted();
 
          //if ( !AzureHelper.IsLoggedIn() )
          //{
