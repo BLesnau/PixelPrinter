@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2015
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixelPrinter.CSharp", "PixelPrinter.CSharp.csproj", "{2A1B93EA-2C95-8C56-23A3-E99D089F05B4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixelPrinter", "PixelPrinter.csproj", "{0DCF0E7B-614B-E2BD-2F00-E515FE42C350}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +9,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2A1B93EA-2C95-8C56-23A3-E99D089F05B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2A1B93EA-2C95-8C56-23A3-E99D089F05B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2A1B93EA-2C95-8C56-23A3-E99D089F05B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2A1B93EA-2C95-8C56-23A3-E99D089F05B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DCF0E7B-614B-E2BD-2F00-E515FE42C350}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DCF0E7B-614B-E2BD-2F00-E515FE42C350}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DCF0E7B-614B-E2BD-2F00-E515FE42C350}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DCF0E7B-614B-E2BD-2F00-E515FE42C350}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
