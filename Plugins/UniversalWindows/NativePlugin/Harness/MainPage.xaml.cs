@@ -71,6 +71,8 @@ namespace Harness
 
       private async Task Login()
       {
+         //await _mobileService.LoginAsync(MobileServiceAuthenticationProvider.Google);
+
          var authToken = await GetAuthToken();
 
          try

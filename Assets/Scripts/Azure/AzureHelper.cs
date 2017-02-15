@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using RestSharp;
@@ -98,12 +99,41 @@ public class AzureHelper
          var user = new User();
          bool threadDone = false;
          bool gotUser = false;
-
+         bool notFound = false;
          client.ExecuteAsync( request, response =>
          {
-            gotUser = user.Deserialize( response.Content );
+            if ( response.StatusCode != HttpStatusCode.NotFound )
+            {
+               gotUser = user.Deserialize( response.Content );
+            }
+            else
+            {
+               notFound = true;
+            }
+
             threadDone = true;
          } );
+
+         while ( !threadDone )
+         {
+         }
+
+         if ( notFound )
+         {
+            PostUser( new User() { UserName = "BrettBruh" } );
+
+            threadDone = false;
+
+            client.ExecuteAsync( request, response =>
+            {
+               if ( response.StatusCode != HttpStatusCode.NotFound )
+               {
+                  gotUser = user.Deserialize( response.Content );
+               }
+
+               threadDone = true;
+            } );
+         }
 
          while ( !threadDone )
          {
@@ -120,6 +150,40 @@ public class AzureHelper
       }
 
       return null;
+   }
+
+   private static void PostUser( User user )
+   {
+      try
+      {
+         if ( !IsLoggedIn() )
+         {
+            Login();
+         }
+
+         var client = new RestClient( _serviceUrl );
+
+         var request = new RestRequest( "tables/User", Method.POST ) { RequestFormat = DataFormat.Json };
+
+         request.AddHeader( "X-ZUMO-AUTH", SettingsManager.GetSetting( SettingsManager.StringSetting.AuthToken ) );
+
+         request.AddObject( user );
+
+         bool threadDone = false;
+
+         client.ExecuteAsync( request, response =>
+         {
+            threadDone = true;
+         } );
+
+         while ( !threadDone )
+         {
+         }
+      }
+      catch ( AuthenticationExpiredException )
+      {
+         throw new AzureErrorException();
+      }
    }
 
    private static void CheckTokenExpiration( string authToken )
