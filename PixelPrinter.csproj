@@ -106,6 +106,7 @@
     <Compile Include="Assets\Scripts\Debug\DebugHelper.cs" />
     <Compile Include="Assets\Scripts\ExtensionMethods.cs" />
     <Compile Include="Assets\Scripts\Extensions\StringExtensions.cs" />
+    <Compile Include="Assets\Scripts\FileHelper.cs" />
     <Compile Include="Assets\Scripts\Input\InputManager.cs" />
     <Compile Include="Assets\Scripts\MathHelper.cs" />
     <Compile Include="Assets\Scripts\Path.cs" />

@@ -71,7 +71,8 @@ public class PixelFigure
 
    public PixelFigure( int c, int r, int d )
    {
-      _id = Guid.NewGuid();
+      //_id = Guid.NewGuid();
+      _id = new Guid( "6590617e-4287-414f-a6a0-ae2c5d2aecb9" );
 
       Init( c, r, d );
    }

@@ -76,18 +76,24 @@ public class PixelManager : MonoBehaviour
       {
          if ( files[0] != null )
          {
-            var size = PixelFigure.GetSize( new Guid( Path.GetFileNameWithoutExtension( files[0] ) ) );
-            ColCount = Convert.ToInt16( size.x );
-            RowCount = Convert.ToInt16( size.y );
-            DepthCount = Convert.ToInt16( size.z );
+            //var filePath = Path.GetFileNameWithoutExtension( files[0] );
+            var filePath = new Guid( "6590617e-4287-414f-a6a0-ae2c5d2aecb9" );
+            if ( FileHelper.FileExists( filePath.ToString() ) )
+            {
 
-            _pixelFigure = new PixelFigure( new Guid( Path.GetFileNameWithoutExtension( files[0] ) ) );
+               var size = PixelFigure.GetSize( filePath );
+               ColCount = Convert.ToInt16( size.x );
+               RowCount = Convert.ToInt16( size.y );
+               DepthCount = Convert.ToInt16( size.z );
 
-           // InitializePixels();
+               _pixelFigure = new PixelFigure( filePath );
 
-            PopInAllPixels();
+               // InitializePixels();
 
-            DetectPlaceablePixels();
+               PopInAllPixels();
+
+               DetectPlaceablePixels();
+            }
          }
       }
    }
