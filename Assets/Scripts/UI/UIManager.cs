@@ -276,10 +276,16 @@ public class UIManager : MonoBehaviour, ILoginListener
 
    public void StartEverything()
    {
-      var user = AzureHelper.GetUser();
+      AzureHelper.GetUser( user =>
+      {
+         DebugHelper.Log( "User", user.UserName );
 
-      StartModal();
-      ImportOrNewSelector.Show();
+         StartModal();
+         ImportOrNewSelector.Show();
+      } );
+
+      int i = 0;
+      i++;
    }
 
    public void StartModal()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using BestHTTP;
 using Newtonsoft.Json.Linq;
@@ -82,7 +83,7 @@ public class AzureHelper
       return false;
    }
 
-   public static User GetUser()
+   public static void GetUser( Action<User> onFinished )
    {
       try
       {
@@ -105,6 +106,7 @@ public class AzureHelper
             if ( response.StatusCode != (int)HttpStatusCode.NotFound )
             {
                user.Deserialize( response.DataAsText );
+               onFinished( user );
             }
             else
             {
@@ -116,14 +118,16 @@ public class AzureHelper
 
                   originalRequest.Send();
                }
+               else
+               {
+                  onFinished( null );
+               }
             }
          } );
 
       request.AddHeader( "X-ZUMO-AUTH", SettingsManager.GetSetting( SettingsManager.StringSetting.AuthToken ) );
 
       request.Send();
-
-      return null;
    }
 
    private static void PostUser( User user )
@@ -151,7 +155,14 @@ public class AzureHelper
 
    private static void AddObjectToRequest( HTTPRequest request, Object obj )
    {
-      foreach ( var prop in obj.GetType().GetProperties() )
+      //if ( UnityHelper.IsUWP() )
+#if UNITY_WSA && !UNITY_EDITOR
+      var props = obj.GetType().GetTypeInfo().DeclaredProperties;
+#else
+      var props = obj.GetType().GetProperties();
+#endif
+
+      foreach ( var prop in props )
       {
          var value = prop.GetValue( obj, null );
          if ( value != null )
