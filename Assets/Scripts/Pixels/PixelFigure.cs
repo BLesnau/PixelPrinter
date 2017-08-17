@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 
-//[JsonObject]
 public class PixelFigure
 {
    public int ColCount = 0;

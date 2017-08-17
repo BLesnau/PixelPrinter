@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
+using BestHTTP;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 #if UNITY_EDITOR || UNITY_WSA
@@ -81,7 +83,7 @@ public class AzureHelper
       return false;
    }
 
-   public static User GetUser()
+   public static void GetUser( Action<User> onFinished )
    {
       try
       {
@@ -89,67 +91,43 @@ public class AzureHelper
          {
             Login();
          }
-
-         var client = new RestClient( _serviceUrl );
-
-         var request = new RestRequest( "tables/User", Method.GET ) { RequestFormat = DataFormat.Json };
-
-         request.AddHeader( "X-ZUMO-AUTH", SettingsManager.GetSetting( SettingsManager.StringSetting.AuthToken ) );
-
-         var user = new User();
-         bool threadDone = false;
-         bool gotUser = false;
-         bool notFound = false;
-         client.ExecuteAsync( request, response =>
-         {
-            if ( response.StatusCode != HttpStatusCode.NotFound )
-            {
-               gotUser = user.Deserialize( response.Content );
-            }
-            else
-            {
-               notFound = true;
-            }
-
-            threadDone = true;
-         } );
-
-         while ( !threadDone )
-         {
-         }
-
-         if ( notFound )
-         {
-            PostUser( new User() { UserName = "BrettBruh" } );
-
-            threadDone = false;
-
-            client.ExecuteAsync( request, response =>
-            {
-               if ( response.StatusCode != HttpStatusCode.NotFound )
-               {
-                  gotUser = user.Deserialize( response.Content );
-               }
-
-               threadDone = true;
-            } );
-         }
-
-         while ( !threadDone )
-         {
-         }
-
-         if ( gotUser )
-         {
-            return user;
-         }
       }
       catch ( AuthenticationExpiredException )
       {
          throw new AzureErrorException();
       }
 
-      return null;
+      var user = new User();
+      var triedOnce = false;
+
+      var request = new HTTPRequest( new Uri( _serviceUrl + "/tables/User" ), HTTPMethods.Get,
+         ( originalRequest, response ) =>
+         {
+            if ( response.StatusCode != (int)HttpStatusCode.NotFound )
+            {
+               user.Deserialize( response.DataAsText );
+               onFinished( user );
+            }
+            else
+            {
+               if ( !triedOnce )
+               {
+                  triedOnce = true;
+
+                  PostUser( new User() { UserName = "BrettBruh" } );
+
+                  originalRequest.Send();
+               }
+               else
+               {
+                  onFinished( null );
+               }
+            }
+         } );
+
+      request.AddHeader( "X-ZUMO-AUTH", SettingsManager.GetSetting( SettingsManager.StringSetting.AuthToken ) );
+
+      request.Send();
    }
 
    private static void PostUser( User user )
@@ -160,29 +138,37 @@ public class AzureHelper
          {
             Login();
          }
-
-         var client = new RestClient( _serviceUrl );
-
-         var request = new RestRequest( "tables/User", Method.POST ) { RequestFormat = DataFormat.Json };
-
-         request.AddHeader( "X-ZUMO-AUTH", SettingsManager.GetSetting( SettingsManager.StringSetting.AuthToken ) );
-
-         request.AddObject( user );
-
-         bool threadDone = false;
-
-         client.ExecuteAsync( request, response =>
-         {
-            threadDone = true;
-         } );
-
-         while ( !threadDone )
-         {
-         }
       }
       catch ( AuthenticationExpiredException )
       {
          throw new AzureErrorException();
+      }
+
+      var request = new HTTPRequest( new Uri( _serviceUrl + "/tables/User" ), HTTPMethods.Post,
+         ( originalRequest, response ) => { } );
+
+      request.AddHeader( "X-ZUMO-AUTH", SettingsManager.GetSetting( SettingsManager.StringSetting.AuthToken ) );
+      AddObjectToRequest( request, user );
+
+      request.Send();
+   }
+
+   private static void AddObjectToRequest( HTTPRequest request, Object obj )
+   {
+      //if ( UnityHelper.IsUWP() )
+#if UNITY_WSA && !UNITY_EDITOR
+      var props = obj.GetType().GetTypeInfo().DeclaredProperties;
+#else
+      var props = obj.GetType().GetProperties();
+#endif
+
+      foreach ( var prop in props )
+      {
+         var value = prop.GetValue( obj, null );
+         if ( value != null )
+         {
+            request.AddField( prop.Name, prop.GetValue( obj, null ).ToString() );
+         }
       }
    }
 
