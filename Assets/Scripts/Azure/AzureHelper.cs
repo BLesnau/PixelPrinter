@@ -68,6 +68,12 @@ public class AzureHelper
             }
 #endif
          }
+         else if ( UnityHelper.IsWebGL() )
+         {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            WebGLPluginInterop.Hello();
+#endif
+         }
       }
    }
 

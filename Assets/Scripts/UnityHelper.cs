@@ -44,4 +44,13 @@
       return false;
 #endif
    }
+
+   public static bool IsWebGL()
+   {
+#if UNITY_WEBGL && !UNITY_EDITOR
+      return true;
+#else
+      return false;
+#endif
+   }
 }
