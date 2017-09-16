@@ -921,6 +921,7 @@
     <Compile Include="Assets\Scripts\Azure\AzureResponseObject.cs" />
     <Compile Include="Assets\Scripts\Azure\AzureResponsePartAttribute.cs" />
     <Compile Include="Assets\Scripts\Azure\ILoginListener.cs" />
+    <Compile Include="Assets\Scripts\Azure\TargetEnvironment.cs" />
     <Compile Include="Assets\Scripts\Azure\User.cs" />
     <Compile Include="Assets\Scripts\Camera\CameraMovement.cs" />
     <Compile Include="Assets\Scripts\Camera\MouseCameraControl.cs" />
@@ -932,6 +933,7 @@
     <Compile Include="Assets\Scripts\ExtensionMethods.cs" />
     <Compile Include="Assets\Scripts\Extensions\StringExtensions.cs" />
     <Compile Include="Assets\Scripts\FileHelper.cs" />
+    <Compile Include="Assets\Scripts\GeneralSetup.cs" />
     <Compile Include="Assets\Scripts\Input\InputManager.cs" />
     <Compile Include="Assets\Scripts\iTween.cs" />
     <Compile Include="Assets\Scripts\MathHelper.cs" />

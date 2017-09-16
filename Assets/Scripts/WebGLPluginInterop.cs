@@ -3,5 +3,5 @@
 public class WebGLPluginInterop /*: MonoBehaviour*/
 {
    [DllImport( "__Internal" )]
-   public static extern void Hello();
+   public static extern void Hello( string appUrl );
 }

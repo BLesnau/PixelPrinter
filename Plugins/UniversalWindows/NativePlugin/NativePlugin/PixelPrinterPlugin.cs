@@ -24,11 +24,11 @@ namespace NativePlugin
          }
       }
 
-      public static async Task<string> GetAuthToken( TargetEnvironment env = TargetEnvironment.Live )
+      public static async Task<string> GetAuthToken( string appUrl )
       {
          try
          {
-            var mobileService = new MobileServiceClient( GetServiceUrl( env ) );
+            var mobileService = new MobileServiceClient( appUrl );
             mobileService.AlternateLoginHost = new Uri( GetServiceUrl( TargetEnvironment.Live ) );
             var user = await mobileService.LoginAsync( MobileServiceAuthenticationProvider.Google );
 

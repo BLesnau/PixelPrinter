@@ -1,7 +1,17 @@
-﻿mergeInto(LibraryManager.library, {
+﻿mergeInto(LibraryManager.library, 
+{
+   Hello: function ( appUrl ) 
+   {
+      var url = Pointer_stringify( appUrl );
+      var client = WindowsAzure.MobileServiceClient( url );
+      client.login( "facebook" ).done( function (results) {
+      alert("You are now logged in as: " + results.userId);
+   }, function (err) 
+      {
+         alert("Error: " + err);
+      }
+   );
 
-  Hello: function () {
-    window.alert("Hello, world!");
-  },
-
+      window.alert("Hello, world!");
+   },
 });

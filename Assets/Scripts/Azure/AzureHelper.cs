@@ -54,7 +54,7 @@ public class AzureHelper
             {
                UnityEngine.WSA.Application.InvokeOnUIThread( async () =>
                {
-                  authToken = await PixelPrinterPlugin.GetAuthToken( PixelPrinterPlugin.TargetEnvironment.Local );
+                  authToken = await PixelPrinterPlugin.GetAuthToken( TargetEnvironment.GetServiceUrl() );
                   //DebugHelper.Log( "Auth Token", authToken );
                   UnityEngine.WSA.Application.InvokeOnAppThread( async () =>
                   {
@@ -71,7 +71,7 @@ public class AzureHelper
          else if ( UnityHelper.IsWebGL() )
          {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            WebGLPluginInterop.Hello();
+            WebGLPluginInterop.Hello( TargetEnvironment.GetServiceUrl() );
 #endif
          }
       }

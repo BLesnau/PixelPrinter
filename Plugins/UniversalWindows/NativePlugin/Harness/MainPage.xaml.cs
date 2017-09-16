@@ -86,7 +86,7 @@ namespace Harness
             //}
             //else
             {
-               authToken = await PixelPrinterPlugin.GetAuthToken( _environment );
+               authToken = await PixelPrinterPlugin.GetAuthToken( PixelPrinterPlugin.GetServiceUrl( _environment ) );
 
                await SaveSettings( authToken );
 
