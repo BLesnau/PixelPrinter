@@ -13,8 +13,8 @@ using NativePlugin;
 public class AzureHelper
 {
    private static string _serviceUrl =
-      "http://desktop-or80phq/PixelPrinterService";
-   //"https://pixelprinter.azurewebsites.net";
+     // "http://desktop-or80phq/PixelPrinterService";
+   "https://pixelprinter.azurewebsites.net";
 
    private static ILoginListener _loginListener;
 
