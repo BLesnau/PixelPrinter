@@ -30,7 +30,7 @@ namespace NativePlugin
          {
             var mobileService = new MobileServiceClient( appUrl );
             mobileService.AlternateLoginHost = new Uri( GetServiceUrl( TargetEnvironment.Live ) );
-            var user = await mobileService.LoginAsync( MobileServiceAuthenticationProvider.Google );
+            var user = await mobileService.LoginAsync( MobileServiceAuthenticationProvider.Facebook );
 
             return user.MobileServiceAuthenticationToken;
             //return string.Join( ",", new string[] { user.MobileServiceAuthenticationToken, user.UserId } );

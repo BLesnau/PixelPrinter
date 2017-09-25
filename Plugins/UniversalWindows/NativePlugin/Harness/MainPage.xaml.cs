@@ -71,7 +71,7 @@ namespace Harness
 
       private async Task Login()
       {
-         await _mobileService.LoginAsync(MobileServiceAuthenticationProvider.Google);
+         await _mobileService.LoginAsync(MobileServiceAuthenticationProvider.Facebook);
 
          var authToken = await GetAuthToken();
 
