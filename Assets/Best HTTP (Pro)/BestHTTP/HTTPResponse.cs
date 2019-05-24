@@ -17,9 +17,10 @@ namespace BestHTTP
 
     #if !BESTHTTP_DISABLE_COOKIES && (!UNITY_WEBGL || UNITY_EDITOR)
         using BestHTTP.Cookies;
-    #endif
+   using UnityEngine;
+#endif
 
-    public interface IProtocol
+   public interface IProtocol
     {
         bool IsClosed { get; }
         void HandleEvents();
@@ -135,7 +136,7 @@ namespace BestHTTP
                     return texture;
 
                 texture = new UnityEngine.Texture2D(0, 0, UnityEngine.TextureFormat.ARGB32, false);
-                texture.LoadImage(Data);
+                ImageConversion.LoadImage(texture, Data);
 
                 return texture;
             }

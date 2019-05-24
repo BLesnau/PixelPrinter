@@ -174,8 +174,8 @@ namespace BestHTTP.Examples
 #if UNITY_5
             cachedBundle.LoadAssetAsync("9443182_orig", typeof(Texture2D));
 #else
-        
-            cachedBundle.LoadAsync("9443182_orig", typeof(Texture2D));
+            
+            cachedBundle.LoadAssetAsync("9443182_orig", typeof(Texture2D));
 #endif
 
             // wait til load
