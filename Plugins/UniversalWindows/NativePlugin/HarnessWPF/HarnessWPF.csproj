@@ -109,9 +109,9 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\UnityRestClient\UnityRestClient.csproj">
-      <Project>{ba36d09b-4886-48d5-8a59-454107f13709}</Project>
-      <Name>UnityRestClient</Name>
+    <ProjectReference Include="..\..\..\..\Assembly-CSharp.csproj">
+      <Project>{746486ed-3c07-b0b5-3335-5e16c3e62257}</Project>
+      <Name>Assembly-CSharp</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
